@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1710350871852,
+      "tag": "0000_absurd_chamber",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1710351588436,
+      "tag": "0001_lyrical_blade",
+      "breakpoints": true
+    }
+  ]
+}
