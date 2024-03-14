@@ -10,35 +10,41 @@ export const Workspaces = pgTable("workspaces", {
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
 export const Folders = pgTable("folders", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  workspaceId: uuid("workspace_id").references(() => Workspaces.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => Workspaces.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
 export const Files = pgTable("files", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  workspaceId: uuid("workspace_id").references(() => Workspaces.id, { onDelete: "cascade" }),
-  folderId: uuid("folder_id").references(() => Folders.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => Workspaces.id, { onDelete: "cascade" }),
+  folderId: uuid("folder_id")
+    .notNull()
+    .references(() => Folders.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { mode: "string", withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const Subscriptions = pgTable("subscriptions", {
+export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
   userId: uuid("user_id")
     .notNull()
