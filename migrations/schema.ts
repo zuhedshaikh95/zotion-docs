@@ -10,6 +10,7 @@ import {
   bigint,
   integer,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const keyStatus = pgEnum("key_status", ["expired", "invalid", "valid", "default"]);
 export const keyType = pgEnum("key_type", [
@@ -50,32 +51,38 @@ export const workspaces = pgTable("workspaces", {
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
 export const files = pgTable("files", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  workspaceId: uuid("workspace_id").references(() => workspaces.id, { onDelete: "cascade" }),
-  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  folderId: uuid("folder_id")
+    .notNull()
+    .references(() => folders.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
 export const folders = pgTable("folders", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
-  workspaceId: uuid("workspace_id").references(() => workspaces.id, { onDelete: "cascade" }),
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
   logo: text("logo"),
   bannerUrl: text("banner_url"),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
 export const users = pgTable(
@@ -136,13 +143,10 @@ export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
   userId: uuid("user_id")
     .notNull()
-    .references(() => users.id)
     .references(() => users.id),
   status: subscriptionStatus("status"),
   metadata: jsonb("metadata"),
-  priceId: text("price_id")
-    .references(() => prices.id)
-    .references(() => prices.id),
+  priceId: text("price_id").references(() => prices.id),
   quantity: integer("quantity"),
   cancelAtPeriodEnd: boolean("cancel_at_period_end"),
   created: timestamp("created", { withTimezone: true, mode: "string" }).defaultNow().notNull(),

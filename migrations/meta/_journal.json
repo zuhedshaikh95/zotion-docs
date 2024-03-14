@@ -15,6 +15,13 @@
       "when": 1710387091986,
       "tag": "0001_melted_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1710427094227,
+      "tag": "0002_abandoned_betty_ross",
+      "breakpoints": true
     }
   ]
 }
