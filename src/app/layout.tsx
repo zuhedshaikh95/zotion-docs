@@ -1,7 +1,9 @@
+import { ThemeProvider } from "@/libs/providers/next-theme-provider";
+import db from "@/libs/supabase/db";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import db from "@/libs/supabase/db";
+db._;
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,10 +17,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log(db._);
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
