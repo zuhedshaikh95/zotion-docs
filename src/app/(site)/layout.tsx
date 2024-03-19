@@ -1,4 +1,4 @@
-import { Container } from "@/components";
+import { Navbar } from "@/components";
 import React from "react";
 
 interface Props {
@@ -6,5 +6,10 @@ interface Props {
 }
 
 export default async function IndexRootLayout({ children }: Props) {
-  return <main>{children}</main>;
+  return (
+    <main>
+      <Navbar />
+      {children}
+    </main>
+  );
 }
