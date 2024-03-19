@@ -1,5 +1,6 @@
 "use client";
-import { Container, Form, Input } from "@/components";
+import { Button, Container, Form, Input, Loader } from "@/components";
+import { authUserLogin } from "@/libs/server-actions/auth-actions";
 import { loginFormSchema } from "@/libs/validations/login";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -21,7 +22,21 @@ export default function Login() {
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit: SubmitHandler<z.infer<typeof loginFormSchema>> = async (values) => {};
+  const onSubmit: SubmitHandler<z.infer<typeof loginFormSchema>> = async (values) => {
+    try {
+      const response = await authUserLogin(values);
+
+      if (response?.error) {
+        form.reset();
+        setSubmitError(response.error.message);
+        return;
+      }
+
+      router.replace("/dashboard");
+    } catch (error: any) {
+      console.log("Login Error:", error.message);
+    }
+  };
 
   return (
     <Container>
@@ -34,16 +49,14 @@ export default function Login() {
             flex
             flex-col"
           onSubmit={form.handleSubmit(onSubmit)}
-          onChange={() => {
-            if (submitError) setSubmitError("");
-          }}
+          onChange={() => (submitError ? setSubmitError("") : null)}
         >
           <Link
+            href="/"
             className="
                 w-full
                 flex
                 items-center"
-            href="/"
             passHref
           >
             <Image src="/zotion-logo.png" alt="zotion-logo" width={50} height={50} />
@@ -63,9 +76,37 @@ export default function Login() {
                 <Form.Control>
                   <Input type="email" placeholder="Email" {...field} />
                 </Form.Control>
+                <Form.Message />
               </Form.Item>
             )}
           />
+
+          <Form.Field
+            disabled={isLoading}
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Control>
+                  <Input type="password" placeholder="Password" {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          {submitError && <Form.Message>{submitError}</Form.Message>}
+
+          <Button className="w-full" type="submit" size="lg" disabled={isLoading}>
+            {!isLoading ? "Login" : <Loader />}
+          </Button>
+
+          <span className="self-container">
+            Don't have an account?{" "}
+            <Link href="/signup" className="text-primary" passHref>
+              Sign Up
+            </Link>
+          </span>
         </form>
       </Form.Root>
     </Container>
