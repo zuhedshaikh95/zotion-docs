@@ -49,7 +49,7 @@ export default function Login() {
             flex
             flex-col"
           onSubmit={form.handleSubmit(onSubmit)}
-          onChange={() => (submitError ? setSubmitError("") : null)}
+          onChange={() => (!!submitError ? setSubmitError("") : null)}
         >
           <Link
             href="/"
