@@ -10,7 +10,6 @@ import {
   bigint,
   integer,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 export const keyStatus = pgEnum("key_status", ["expired", "invalid", "valid", "default"]);
 export const keyType = pgEnum("key_type", [
