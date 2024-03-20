@@ -16,6 +16,29 @@ export async function authUserLogin({ email, password }: z.infer<typeof loginFor
     return response;
   } catch (error: any) {
     console.log("Auth Login Error:", error.message);
-    return null;
+    return { error: { message: error.message } };
+  }
+}
+
+export async function authUserSignup({ email, password }: z.infer<typeof loginFormSchema>) {
+  const supabase = createRouteHandlerClient({ cookies });
+
+  try {
+    const { data, error } = await supabase.from("profiles").select("*").eq("email", email);
+
+    if (data?.length) {
+      return { error: { message: "Account with this email ID already exists!", data } };
+    }
+
+    const response = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
+    });
+
+    return response;
+  } catch (error: any) {
+    console.log("Auth Signup Error:", error.message);
+    return { error: { message: error.message } };
   }
 }
