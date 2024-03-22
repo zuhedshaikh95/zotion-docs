@@ -7,10 +7,18 @@ export async function GET(request: NextRequest) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
 
-    if (code) {
-      const supabase = createRouteHandlerClient({ cookies });
-      await supabase.auth.exchangeCodeForSession(code);
+    if (!code) {
+      return NextResponse.json(
+        {
+          message: "Bad Request",
+          error: true,
+        },
+        { status: 400 }
+      );
     }
+
+    const supabase = createRouteHandlerClient({ cookies });
+    await supabase.auth.exchangeCodeForSession(code!);
 
     return NextResponse.redirect(`${requestUrl.origin}/dashboard`);
   } catch (error: any) {
