@@ -1,5 +1,6 @@
 "use client";
 import { Alert, Button, Form, Input, Loader } from "@/components";
+import { authUserSignup } from "@/libs/server-actions/auth-actions";
 import { signupFormSchema } from "@/libs/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -27,7 +28,7 @@ export default function Signup() {
 
   const codeExchangeError = useMemo(() => {
     if (!searchParams) return "";
-    return searchParams.get("error_descrition");
+    return searchParams.get("error_description");
   }, [searchParams]);
 
   const confirmationAndErrorStyles = useMemo<string>(
@@ -40,7 +41,21 @@ export default function Signup() {
     []
   );
 
-  const onSubmit: SubmitHandler<z.infer<typeof signupFormSchema>> = async (values) => {};
+  const onSubmit: SubmitHandler<z.infer<typeof signupFormSchema>> = async ({ confirmPassword, email, password }) => {
+    try {
+      const response = await authUserSignup({ email, password });
+
+      console.log(response);
+
+      if (response.error) {
+        setSubmitError(response.error.message);
+        // form.reset();
+        return;
+      }
+
+      setConfirmation(true);
+    } catch (error: any) {}
+  };
 
   return (
     <Form.Root {...form}>
