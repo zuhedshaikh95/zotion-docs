@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, text, jsonb, integer, boolean } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { prices, subscriptionStatus, users } from "../../../migrations/schema";
 
 export const Workspaces = pgTable("workspaces", {
