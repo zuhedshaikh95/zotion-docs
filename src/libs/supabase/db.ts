@@ -1,8 +1,8 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
 import * as dotenv from "dotenv";
-import * as schema from "../../../migrations/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
+import * as schema from "../../../migrations/schema";
 dotenv.config({ path: ".env" });
 
 if (!process.env.DATABASE_URL) {
@@ -15,9 +15,9 @@ const db = drizzle(client, { schema });
 
 (async () => {
   console.log("🟠 Migrating client!");
-  await migrate(db, { migrationsFolder: "migrations" });
-  console.log("🟢 Successfully migrated!");
   try {
+    await migrate(db, { migrationsFolder: "migrations" });
+    console.log("🟢 Successfully migrated!");
   } catch (error: any) {
     console.log("🔴 Migration Error:", error.message);
   }
