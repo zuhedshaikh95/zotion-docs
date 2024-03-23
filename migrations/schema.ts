@@ -10,6 +10,7 @@ import {
   bigint,
   integer,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const keyStatus = pgEnum("key_status", ["expired", "invalid", "valid", "default"]);
 export const keyType = pgEnum("key_type", [
@@ -89,11 +90,11 @@ export const users = pgTable(
   {
     id: uuid("id").primaryKey().notNull(),
     fullName: text("full_name"),
+    email: text("email"),
     avatarUrl: text("avatar_url"),
     billingAddress: jsonb("billing_address"),
     paymentMethod: jsonb("payment_method"),
-    email: text("email"),
-    updateAt: timestamp("update_at", { withTimezone: true, mode: "string" }),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }),
   },
   (table) => {
     return {
@@ -114,6 +115,15 @@ export const customers = pgTable("customers", {
   stripeCustomerId: text("stripe_customer_id"),
 });
 
+export const products = pgTable("products", {
+  id: text("id").primaryKey().notNull(),
+  active: boolean("active"),
+  name: text("name"),
+  description: text("description"),
+  image: text("image"),
+  metadata: jsonb("metadata"),
+});
+
 export const prices = pgTable("prices", {
   id: text("id").primaryKey().notNull(),
   productId: text("product_id").references(() => products.id),
@@ -126,15 +136,6 @@ export const prices = pgTable("prices", {
   interval: pricingPlanInterval("interval"),
   intervalCount: integer("interval_count"),
   trialPeriodDays: integer("trial_period_days"),
-  metadata: jsonb("metadata"),
-});
-
-export const products = pgTable("products", {
-  id: text("id").primaryKey().notNull(),
-  active: boolean("active"),
-  name: text("name"),
-  description: text("description"),
-  image: text("image"),
   metadata: jsonb("metadata"),
 });
 
