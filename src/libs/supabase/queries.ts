@@ -1,9 +1,9 @@
 "use server";
 import { and, eq, notExists } from "drizzle-orm";
 import { validate as validateUUID } from "uuid";
-import { collaborators, folders, users, workspaces } from "../../../migrations/schema";
+import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
-import { FolderI, SubscriptionI, WorkspaceI } from "./supabase.types";
+import { FileI, FolderI, SubscriptionI, WorkspaceI } from "./supabase.types";
 
 export const getUserSubscription = async (userId: string) => {
   try {
@@ -115,4 +115,19 @@ export const getSharedWorkspaces = async (userId: string) => {
     .where(eq(workspaces.workspaceOwner, userId))) as WorkspaceI[];
 
   return sharedWorkspaces;
+};
+
+export const getFiles = async (folderId: string) => {
+  const isValidId = validateUUID(folderId);
+  if (!isValidId) return { data: null, error: "Error" };
+
+  try {
+    const results = (await db.select().from(files).orderBy(files.createdAt).where(eq(files.folderId, folderId))) as
+      | FileI[]
+      | [];
+    return { data: results, error: null };
+  } catch (error) {
+    console.log(error);
+    return { data: null, error: "Error" };
+  }
 };
