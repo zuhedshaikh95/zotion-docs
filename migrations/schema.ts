@@ -10,37 +10,38 @@ import {
   bigint,
   integer,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
-export const keyStatus = pgEnum("key_status", ["expired", "invalid", "valid", "default"]);
+export const keyStatus = pgEnum("key_status", ["default", "valid", "invalid", "expired"]);
 export const keyType = pgEnum("key_type", [
-  "stream_xchacha20",
-  "secretstream",
-  "secretbox",
-  "kdf",
-  "generichash",
-  "shorthash",
-  "auth",
-  "hmacsha256",
-  "hmacsha512",
-  "aead-det",
   "aead-ietf",
+  "aead-det",
+  "hmacsha512",
+  "hmacsha256",
+  "auth",
+  "shorthash",
+  "generichash",
+  "kdf",
+  "secretbox",
+  "secretstream",
+  "stream_xchacha20",
 ]);
-export const factorStatus = pgEnum("factor_status", ["verified", "unverified"]);
-export const factorType = pgEnum("factor_type", ["webauthn", "totp"]);
-export const aalLevel = pgEnum("aal_level", ["aal3", "aal2", "aal1"]);
-export const codeChallengeMethod = pgEnum("code_challenge_method", ["plain", "s256"]);
-export const pricingType = pgEnum("pricing_type", ["recurring", "one_time"]);
-export const pricingPlanInterval = pgEnum("pricing_plan_interval", ["year", "month", "week", "day"]);
+export const factorType = pgEnum("factor_type", ["totp", "webauthn"]);
+export const factorStatus = pgEnum("factor_status", ["unverified", "verified"]);
+export const aalLevel = pgEnum("aal_level", ["aal1", "aal2", "aal3"]);
+export const codeChallengeMethod = pgEnum("code_challenge_method", ["s256", "plain"]);
+export const pricingType = pgEnum("pricing_type", ["one_time", "recurring"]);
+export const pricingPlanInterval = pgEnum("pricing_plan_interval", ["day", "week", "month", "year"]);
 export const subscriptionStatus = pgEnum("subscription_status", [
-  "unpaid",
-  "past_due",
-  "incomplete_expired",
-  "incomplete",
-  "canceled",
-  "active",
   "trialing",
+  "active",
+  "canceled",
+  "incomplete",
+  "incomplete_expired",
+  "past_due",
+  "unpaid",
 ]);
+export const equalityOp = pgEnum("equality_op", ["eq", "neq", "lt", "lte", "gt", "gte", "in"]);
+export const action = pgEnum("action", ["INSERT", "UPDATE", "DELETE", "TRUNCATE", "ERROR"]);
 
 export const workspaces = pgTable("workspaces", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
@@ -157,4 +158,14 @@ export const subscriptions = pgTable("subscriptions", {
   canceledAt: timestamp("canceled_at", { withTimezone: true, mode: "string" }).defaultNow(),
   trialStart: timestamp("trial_start", { withTimezone: true, mode: "string" }).defaultNow(),
   trialEnd: timestamp("trial_end", { withTimezone: true, mode: "string" }).defaultNow(),
+});
+
+export const collaborators = pgTable("collaborators", {
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
 });
