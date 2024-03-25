@@ -1,11 +1,7 @@
 import { Navbar } from "@/components";
 import React from "react";
 
-interface Props {
-  children: React.ReactNode;
-}
-
-export default async function IndexRootLayout({ children }: Props) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <main>
       <Navbar />
