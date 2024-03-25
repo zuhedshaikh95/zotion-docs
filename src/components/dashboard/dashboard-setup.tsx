@@ -1,6 +1,6 @@
 "use client";
 import { createNewWorkspace } from "@/libs/supabase/queries";
-import { SubscriptionI } from "@/libs/supabase/supabase.types";
+import { SubscriptionI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { CreateWorkspaceFormSchema } from "@/libs/validations/workspace";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { AuthUser } from "@supabase/supabase-js";
@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
 import { Button, Card, EmojiPicker, Input, Label, Loader } from "..";
 import { useToast } from "../ui/use-toast";
+import { useAppState } from "@/libs/providers/app-state-provider";
 
 interface Props {
   user: AuthUser | null;
@@ -20,6 +21,7 @@ interface Props {
 const DashboardSetup: React.FC<Props> = ({ subscription, user }) => {
   const router = useRouter();
   const { toast } = useToast();
+  const { dispatch } = useAppState();
   const supabase = createClientComponentClient();
   const [selectedEmoji, setSelectedEmoji] = useState<string>("💼");
 
@@ -62,7 +64,7 @@ const DashboardSetup: React.FC<Props> = ({ subscription, user }) => {
     }
 
     try {
-      const { data, error: createError } = await createNewWorkspace({
+      const newWorkspace: WorkspaceI = {
         bannerUrl: "",
         createdAt: new Date().toISOString(),
         data: null,
@@ -72,7 +74,8 @@ const DashboardSetup: React.FC<Props> = ({ subscription, user }) => {
         logo: filePath ?? null,
         workspaceOwner: user?.id!,
         title: values.workspaceName,
-      });
+      };
+      const { data, error: createError } = await createNewWorkspace(newWorkspace);
 
       if (createError) {
         toast({
@@ -82,6 +85,11 @@ const DashboardSetup: React.FC<Props> = ({ subscription, user }) => {
         });
         return;
       }
+
+      dispatch({
+        type: "ADD_WORKSPACE",
+        payload: { ...newWorkspace, folders: [] },
+      });
 
       toast({
         title: "Successful",
