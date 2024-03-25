@@ -1,7 +1,7 @@
 import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { prices, subscriptionStatus, users } from "../../../migrations/schema";
 
-export const Workspaces = pgTable("workspaces", {
+export const workspaces = pgTable("workspaces", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   workspaceOwner: uuid("workspace_owner").notNull(),
   title: text("title").notNull(),
@@ -13,11 +13,11 @@ export const Workspaces = pgTable("workspaces", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const Folders = pgTable("folders", {
+export const folders = pgTable("folders", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   workspaceId: uuid("workspace_id")
     .notNull()
-    .references(() => Workspaces.id, { onDelete: "cascade" }),
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
@@ -31,10 +31,10 @@ export const Files = pgTable("files", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   workspaceId: uuid("workspace_id")
     .notNull()
-    .references(() => Workspaces.id, { onDelete: "cascade" }),
+    .references(() => workspaces.id, { onDelete: "cascade" }),
   folderId: uuid("folder_id")
     .notNull()
-    .references(() => Folders.id, { onDelete: "cascade" }),
+    .references(() => folders.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   iconId: text("icon_id").notNull(),
   data: text("data"),
@@ -44,7 +44,7 @@ export const Files = pgTable("files", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const subscriptions = pgTable("subscriptions", {
+export const Subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
   userId: uuid("user_id")
     .notNull()
@@ -62,4 +62,14 @@ export const subscriptions = pgTable("subscriptions", {
   canceledAt: timestamp("canceled_at", { withTimezone: true, mode: "string" }).defaultNow(),
   trialStart: timestamp("trial_start", { withTimezone: true, mode: "string" }).defaultNow(),
   trialEnd: timestamp("trial_end", { withTimezone: true, mode: "string" }).defaultNow(),
+});
+
+export const collaborators = pgTable("collaborators", {
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
 });
