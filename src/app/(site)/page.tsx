@@ -1,11 +1,10 @@
-import { Avatar, Button, Card, Container, TitleSection } from "@/components";
-import * as CardPrimitive from "@/components/ui/card";
+import { Avatar, Button, CustomCard, Container, TitleSection, Card } from "@/components";
 import { CLIENTS, PRICING_CARDS, PRICING_PLANS, USERS } from "@/constants";
 import clsx from "clsx";
 import Image from "next/image";
 import { twMerge } from "tailwind-merge";
 
-export default async function Index() {
+export default async function Landing() {
   return (
     <>
       <Container>
@@ -207,7 +206,7 @@ export default async function Index() {
                 )}
               >
                 {USERS.map((testimonial, index) => (
-                  <Card
+                  <CustomCard
                     key={index}
                     className="
                       w-[300px]
@@ -227,11 +226,11 @@ export default async function Index() {
                         </Avatar.Root>
 
                         <div>
-                          <CardPrimitive.Title className="text-foreground">{testimonial.name}</CardPrimitive.Title>
+                          <Card.Title className="text-foreground">{testimonial.name}</Card.Title>
 
-                          <CardPrimitive.Description className="dark:text-washed-purple-800">
+                          <Card.Description className="dark:text-washed-purple-800">
                             {testimonial.name.toLowerCase()}
-                          </CardPrimitive.Description>
+                          </Card.Description>
                         </div>
                       </div>
                     }
@@ -260,13 +259,13 @@ export default async function Index() {
             mt-10"
         >
           {PRICING_CARDS.map((pricing, index) => (
-            <Card
+            <CustomCard
               key={index}
               className={clsx("w-full sm:w-[300px] rounded-2xl dark:bg-black/40 relative", {
                 "border-brand-primaryPurple/70": pricing.planType === PRICING_PLANS.proplan,
               })}
               header={
-                <CardPrimitive.Title>
+                <Card.Title>
                   {pricing.planType === PRICING_PLANS.proplan && (
                     <>
                       <div
@@ -292,10 +291,10 @@ export default async function Index() {
                     </>
                   )}
                   {pricing.planType}
-                </CardPrimitive.Title>
+                </Card.Title>
               }
               body={
-                <CardPrimitive.Content className="p-0">
+                <Card.Content className="p-0">
                   <span className="font-normal text-2xl">{pricing.price}</span>
 
                   {!!pricing.price && <span className="dark:text-washed-purple-800 ml-1">/mo</span>}
@@ -305,7 +304,7 @@ export default async function Index() {
                   <Button className="whitespace-nowrap w-full mt-4 text-base" variant="btn-primary" size="sm">
                     {pricing.planType === PRICING_PLANS.proplan ? "Go Pro" : "Get Started"}
                   </Button>
-                </CardPrimitive.Content>
+                </Card.Content>
               }
               footer={
                 <ul>
