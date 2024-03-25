@@ -2,9 +2,9 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import * as z from "zod";
-import { loginFormSchema } from "../validations/login";
+import { LoginFormSchema } from "../validations/login";
 
-export async function authUserLogin({ email, password }: z.infer<typeof loginFormSchema>) {
+export async function authUserLogin({ email, password }: z.infer<typeof LoginFormSchema>) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const response = await supabase.auth.signInWithPassword({ email, password });
@@ -20,13 +20,12 @@ export async function authUserLogin({ email, password }: z.infer<typeof loginFor
   }
 }
 
-export async function authUserSignup({ email, password }: z.infer<typeof loginFormSchema>) {
-  const supabase = createRouteHandlerClient({ cookies });
-
+export async function authUserSignup({ email, password }: z.infer<typeof LoginFormSchema>) {
   try {
-    const response: any = await supabase.from("profiles").select("*").eq(email, "email");
+    const supabase = createRouteHandlerClient({ cookies });
+    const response = await supabase.from("profiles").select("*").eq(email, "email");
 
-    if (response.data?.user) {
+    if (response.data?.length) {
       return { error: { message: "Account with email ID already exists." } };
     }
 
