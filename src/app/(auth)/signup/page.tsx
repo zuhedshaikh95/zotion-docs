@@ -1,7 +1,7 @@
 "use client";
 import { Alert, Button, Form, Input, Loader } from "@/components";
 import { authUserSignup } from "@/libs/server-actions/auth-actions";
-import { signupFormSchema } from "@/libs/validations/signup";
+import { SignupFormSchema } from "@/libs/validations/signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { MailCheck } from "lucide-react";
@@ -18,9 +18,9 @@ export default function Signup() {
   const [submitError, setSubmitError] = useState<string>("");
   const [confirmation, setConfirmation] = useState<boolean>(false);
 
-  const form = useForm<z.infer<typeof signupFormSchema>>({
+  const form = useForm<z.infer<typeof SignupFormSchema>>({
     mode: "onChange",
-    resolver: zodResolver(signupFormSchema),
+    resolver: zodResolver(SignupFormSchema),
     defaultValues: { confirmPassword: "", email: "", password: "" },
   });
 
@@ -41,7 +41,7 @@ export default function Signup() {
     []
   );
 
-  const onSubmit: SubmitHandler<z.infer<typeof signupFormSchema>> = async ({ confirmPassword, email, password }) => {
+  const onSubmit: SubmitHandler<z.infer<typeof SignupFormSchema>> = async ({ confirmPassword, email, password }) => {
     try {
       const response = await authUserSignup({ email, password });
 
@@ -49,7 +49,7 @@ export default function Signup() {
 
       if (response.error) {
         setSubmitError(response.error.message);
-        // form.reset();
+        form.reset();
         return;
       }
 
