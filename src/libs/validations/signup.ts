@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const signupFormSchema = z
+export const SignupFormSchema = z
   .object({
     email: z.string().describe("Email").email({ message: "Invalid Email" }),
     password: z.string().describe("Password").min(6, "Password must be of minimum 6 characters"),
