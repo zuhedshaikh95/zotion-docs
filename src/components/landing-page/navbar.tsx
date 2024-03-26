@@ -1,5 +1,6 @@
 "use client";
 import { NavbarConfig } from "@/configs/navbar.config";
+import { useAuth } from "@/libs/providers/auth-provider";
 import { cn } from "@/libs/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +18,7 @@ const routes = [
 interface Props {}
 
 const Navbar: React.FC<Props> = ({}) => {
+  const { user } = useAuth();
   const [path, setPath] = useState<string>("#products");
 
   return (
@@ -182,17 +184,29 @@ const Navbar: React.FC<Props> = ({}) => {
           gap-2
           justify-end"
       >
-        <Link href="/login" passHref>
-          <Button className="p-1 hidden sm:block text-sm" variant="btn-secondary">
-            Login
-          </Button>
-        </Link>
+        {!user && (
+          <>
+            <Link href="/login" passHref>
+              <Button className="p-1 hidden sm:block text-sm" variant="btn-secondary">
+                Login
+              </Button>
+            </Link>
 
-        <Link href="/signup" passHref>
-          <Button className="whitespace-nowrap text-sm" variant="btn-primary" size="sm">
-            Signup
-          </Button>
-        </Link>
+            <Link href="/signup" passHref>
+              <Button className="whitespace-nowrap text-sm" variant="btn-primary" size="sm">
+                Signup
+              </Button>
+            </Link>
+          </>
+        )}
+
+        {user && (
+          <Link href="/dashboard" passHref>
+            <Button type="submit" className="whitespace-nowrap text-sm" variant="secondary" size="sm">
+              Dashboard
+            </Button>
+          </Link>
+        )}
       </aside>
     </header>
   );
