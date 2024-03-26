@@ -1,10 +1,11 @@
 import { Toaster } from "@/components/ui/toaster";
+import AppStateProvider from "@/libs/providers/app-state-provider";
+import AuthProvider from "@/libs/providers/auth-provider";
 import { ThemeProvider } from "@/libs/providers/next-theme-provider";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
 import "./globals.css";
-import AppStateProvider from "@/libs/providers/app-state-provider";
 
 const dmSans = DM_Sans({ subsets: ["latin"] });
 
@@ -23,8 +24,10 @@ export default function RootLayout({
       <body className={twMerge("bg-background", dmSans.className)}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AppStateProvider>
-            <Toaster />
-            {children}
+            <AuthProvider>
+              <Toaster />
+              {children}
+            </AuthProvider>
           </AppStateProvider>
         </ThemeProvider>
       </body>
