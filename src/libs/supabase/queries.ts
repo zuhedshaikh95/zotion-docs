@@ -53,19 +53,20 @@ export const getPrivateWorkspaces = async (userId: string) => {
   const privateWorkspaces = (await db
     .select({
       id: workspaces.id,
+      createdAt: workspaces.createdAt,
       workspaceOwner: workspaces.workspaceOwner,
       title: workspaces.title,
       iconId: workspaces.iconId,
       data: workspaces.data,
       inTrash: workspaces.inTrash,
       logo: workspaces.logo,
-      createdAt: workspaces.createdAt,
+      bannerUrl: workspaces.bannerUrl,
     })
     .from(workspaces)
     .where(
       and(
         notExists(db.select().from(collaborators).where(eq(collaborators.workspaceId, workspaces.id))),
-        eq(workspaces.id, userId)
+        eq(workspaces.workspaceOwner, userId)
       )
     )) as WorkspaceI[];
 
@@ -119,15 +120,14 @@ export const getSharedWorkspaces = async (userId: string) => {
 
 export const getFiles = async (folderId: string) => {
   const isValidId = validateUUID(folderId);
-  if (!isValidId) return { data: null, error: "Error" };
+  if (!isValidId) return { data: null, error: "Get Files Error" };
 
   try {
     const results = (await db.select().from(files).orderBy(files.createdAt).where(eq(files.folderId, folderId))) as
       | FileI[]
       | [];
     return { data: results, error: null };
-  } catch (error) {
-    console.log(error);
-    return { data: null, error: "Error" };
+  } catch (error: any) {
+    return { data: null, error: "Get Files Error: " + error.messge };
   }
 };
