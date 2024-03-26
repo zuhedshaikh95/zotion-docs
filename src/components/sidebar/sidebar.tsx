@@ -54,7 +54,7 @@ const Sidebar: React.FC<Props> = async ({ params, className }) => {
           defaultValue={privateWorkspaces
             .concat(collaboratingWorkspaces, sharedWorkspaces)
             .find((workspace) => workspace.id === params.workspaceId)}
-        ></WorkspaceDropdown>
+        />
       </div>
     </aside>
   );
