@@ -4,6 +4,7 @@ import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
 import { FileI, FolderI, SubscriptionI, WorkspaceI } from "./supabase.types";
+import { User } from "@supabase/supabase-js";
 
 export const getUserSubscription = async (userId: string) => {
   try {
@@ -22,10 +23,10 @@ export const createNewWorkspace = async (workspace: WorkspaceI) => {
   try {
     const response = await db.insert(workspaces).values(workspace);
 
-    return { data: null, error: null };
+    return { data: response, error: null };
   } catch (error: any) {
     console.log("Create Workspace Error:", error.message);
-    return { data: null, error: "Error" };
+    return { data: null, error: error.message };
   }
 };
 
@@ -129,5 +130,21 @@ export const getFiles = async (folderId: string) => {
     return { data: results, error: null };
   } catch (error: any) {
     return { data: null, error: "Get Files Error: " + error.messge };
+  }
+};
+
+export const addCollaborators = async (users: User[], workspaceId: string) => {
+  try {
+    users.forEach(async (user) => {
+      const userExists = await db.query.collaborators.findFirst({
+        where: (dbUser, { eq, and }) => and(eq(dbUser.userId, user.id), eq(dbUser.workspaceId, workspaceId)),
+      });
+
+      if (!userExists) await db.insert(collaborators).values({ workspaceId, userId: user.id });
+    });
+
+    return { data: "Collaborators updated!", error: null };
+  } catch (error: any) {
+    return { data: null, error: error.message };
   }
 };
