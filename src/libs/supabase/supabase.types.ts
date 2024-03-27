@@ -1,5 +1,6 @@
 import { InferSelectModel } from "drizzle-orm";
 import {
+  collaborators,
   customers,
   files,
   folders,
@@ -488,3 +489,5 @@ export type SubscriptionI = InferSelectModel<typeof subscriptions> & {
 export type ProductWithPriceI = ProductI & {
   prices?: PriceI[];
 };
+
+export type CollaboratorI = InferSelectModel<typeof collaborators>;
