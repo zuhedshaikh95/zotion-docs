@@ -17,6 +17,7 @@ export { default as Container } from "./global/container";
 export { default as EmojiPicker } from "./global/emoji-picker";
 export { default as CustomDialogTrigger } from "./global/custom-dialogue-trigger";
 export { default as WorkspaceCreator } from "./global/workspace-creator";
+export { default as CollaboratorSearch } from "./global/workspace-creator";
 
 // ui
 export { default as Button } from "./ui/button";
