@@ -17,7 +17,7 @@ export { default as Container } from "./global/container";
 export { default as EmojiPicker } from "./global/emoji-picker";
 export { default as CustomDialogTrigger } from "./global/custom-dialogue-trigger";
 export { default as WorkspaceCreator } from "./global/workspace-creator";
-export { default as CollaboratorSearch } from "./global/workspace-creator";
+export { default as CollaboratorSearch } from "./global/collaborators-search";
 
 // ui
 export { default as Button } from "./ui/button";
@@ -32,3 +32,5 @@ export * as Alert from "./ui/alert";
 export * as Popover from "./ui/popover";
 export * as Dialog from "./ui/dialog";
 export * as Select from "./ui/select";
+export * as Sheet from "./ui/sheet";
+export * as Scroll from "./ui/scroll-area";
