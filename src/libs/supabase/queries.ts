@@ -1,10 +1,9 @@
 "use server";
-import { and, eq, notExists } from "drizzle-orm";
+import { and, eq, ilike, notExists } from "drizzle-orm";
 import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
-import { FileI, FolderI, SubscriptionI, WorkspaceI } from "./supabase.types";
-import { User } from "@supabase/supabase-js";
+import { FileI, FolderI, SubscriptionI, UserI, WorkspaceI } from "./supabase.types";
 
 export const getUserSubscription = async (userId: string) => {
   try {
@@ -133,7 +132,7 @@ export const getFiles = async (folderId: string) => {
   }
 };
 
-export const addCollaborators = async (users: User[], workspaceId: string) => {
+export const addCollaborators = async (users: UserI[], workspaceId: string) => {
   try {
     users.forEach(async (user) => {
       const userExists = await db.query.collaborators.findFirst({
@@ -146,5 +145,21 @@ export const addCollaborators = async (users: User[], workspaceId: string) => {
     return { data: "Collaborators updated!", error: null };
   } catch (error: any) {
     return { data: null, error: error.message };
+  }
+};
+
+export const searchUsers = async (email: string) => {
+  try {
+    if (!email) return [];
+
+    const accounts = await db
+      .select()
+      .from(users)
+      .where(ilike(users.email, `${email}%`));
+
+    return accounts;
+  } catch (error: any) {
+    console.log("Search Error:", error.message);
+    return [];
   }
 };
