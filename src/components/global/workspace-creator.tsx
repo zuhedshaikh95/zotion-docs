@@ -1,13 +1,13 @@
 "use client";
 import { useAuth } from "@/libs/providers/auth-provider";
 import { addCollaborators, createNewWorkspace } from "@/libs/supabase/queries";
-import { WorkspaceI } from "@/libs/supabase/supabase.types";
-import { User } from "@supabase/supabase-js";
-import { Lock, Share } from "lucide-react";
+import { UserI, WorkspaceI } from "@/libs/supabase/supabase.types";
+import { Lock, Plus, Share } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Button, CollaboratorSearch, Input, Label, Select } from "..";
+import { Avatar, Button, CollaboratorSearch, Input, Label, Scroll, Select } from "..";
 import { useToast } from "../ui/use-toast";
 
 interface Props {}
@@ -18,17 +18,17 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
   const { toast } = useToast();
   const [permissions, setPermissions] = useState("private");
   const [title, setTitle] = useState("");
-  const [collaborators, setCollaborators] = useState<User[]>([]);
+  const [collaborators, setCollaborators] = useState<UserI[]>([]);
 
-  const addCollaborator = (user: User) => {
+  const addCollaborator = (user: UserI) => {
     setCollaborators((prevCollaborators) => [...prevCollaborators, user]);
   };
 
-  const removeCollaborator = (user: User) => {
+  const removeCollaborator = (user: UserI) => {
     setCollaborators(collaborators.filter((collaborator) => collaborator.id !== user.id));
   };
 
-  const handleCreateItem = async () => {
+  const handleCreateWorkspace = async () => {
     const uuid = uuidv4();
 
     if (user?.id) {
@@ -144,7 +144,58 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
 
       {permissions === "shared" && (
         <div>
-          <CollaboratorSearch></CollaboratorSearch>
+          <CollaboratorSearch existingCollaborators={collaborators} onGetCollaborator={(user) => addCollaborator(user)}>
+            <Button type="button" className="text-sm mt-4">
+              <Plus />
+              Add Collaborators
+            </Button>
+          </CollaboratorSearch>
+
+          <div className="mt-4">
+            <span className="text-sm text-muted-foreground">Collaborators {collaborators.length || ""}</span>
+
+            <Scroll.Area
+              className="
+                h-[120px]
+                overflow-y-auto
+                w-full
+                rounded-md
+                border
+                border-muted-foreground/20"
+            >
+              {!!collaborators.length ? (
+                collaborators.map((collaborator) => (
+                  <div key={collaborator.id} className="p-4 flex justify-between items-center">
+                    <div className="flex gap-4 w-full items-center">
+                      <Avatar.Root>
+                        <Avatar.Image src={"/avatar/7.png"} alt="avatar" />
+                        <Avatar.Fallback>
+                          <Image src="/placeholder.jpg" alt="avatar-fallback" fill />
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+
+                      <div className="text-sm text-muted-foreground">{collaborator.email}</div>
+                    </div>
+
+                    <Button variant="secondary" onClick={() => removeCollaborator(collaborator)}>
+                      Remove
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div
+                  className="
+                    absolute
+                    inset-0
+                    flex
+                    justify-center
+                    items-center"
+                >
+                  <span className="text-muted-foreground text-sm">You have no collaborators</span>
+                </div>
+              )}
+            </Scroll.Area>
+          </div>
         </div>
       )}
 
@@ -152,7 +203,7 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
         type="button"
         variant="secondary"
         disabled={!title || (permissions === "shared" && collaborators.length === 0)}
-        onClick={handleCreateItem}
+        onClick={handleCreateWorkspace}
       >
         Create
       </Button>
