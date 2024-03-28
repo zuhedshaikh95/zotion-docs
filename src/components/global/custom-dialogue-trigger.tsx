@@ -16,10 +16,11 @@ const CustomDialogTrigger: React.FC<Props> = ({ children, className, content, de
       <Dialog.Trigger className={clsx("", className)}>{children}</Dialog.Trigger>
       <Dialog.Content
         className="
-            h-screen
-            block
-            sm:h-[440px]
-            w-full"
+          block
+          h-screen
+          sm:h-[440px]
+          overflow-auto
+          w-full"
       >
         <Dialog.Header>
           <Dialog.Title>{header}</Dialog.Title>
