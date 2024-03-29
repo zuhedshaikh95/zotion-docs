@@ -24,7 +24,6 @@ const SelectedWorkspace: React.FC<Props> = ({ onClick, workspace }) => {
   return (
     <Link
       className="
-        rounded-md
         text-sm
         flex
         justify-center
@@ -42,16 +41,8 @@ const SelectedWorkspace: React.FC<Props> = ({ onClick, workspace }) => {
     >
       <Image src={workspaceLogo} width={26} height={26} alt="workspace-logo" />
 
-      <div className="flex flex-col">
-        <p
-          className="
-            w-[170px]
-            overflow-hidden
-            overflow-ellipsis
-            whitespace-nowrap"
-        >
-          {workspace.title}
-        </p>
+      <div className="flex flex-col w-[170px]">
+        <p className="whitespace-nowrap">{workspace.title}</p>
       </div>
     </Link>
   );
