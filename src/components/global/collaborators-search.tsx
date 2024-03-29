@@ -74,14 +74,14 @@ const CollaboratorSearch: React.FC<Props> = ({ children, existingCollaborators, 
               <div
                 key={user.id}
                 className="
-                p-2
-                flex
-                justify-between
-                items-center"
+                  p-2
+                  flex
+                  justify-between
+                  items-center"
               >
                 <div className="flex gap-3 items-center">
                   <Avatar.Root className="w-8 h-8">
-                    <Avatar.Image src="/avatars/4.png" alt="avatar" />
+                    <Avatar.Image src={user.avatarUrl!} alt="avatar" />
                     <Avatar.Fallback>
                       <Image src="/placeholder.jpg" alt="avatar-fallback" fill />
                     </Avatar.Fallback>
