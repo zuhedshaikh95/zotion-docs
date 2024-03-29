@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Avatar, Button, CollaboratorSearch, Input, Label, Scroll, Select } from "..";
+import { Avatar, Button, CollaboratorSearch, Input, Label, Loader, Scroll, Select } from "..";
 import { useToast } from "../ui/use-toast";
 
 interface Props {}
@@ -19,6 +19,7 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
   const [permissions, setPermissions] = useState("private");
   const [title, setTitle] = useState("");
   const [collaborators, setCollaborators] = useState<UserI[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const addCollaborator = (user: UserI) => {
     setCollaborators((prevCollaborators) => [...prevCollaborators, user]);
@@ -29,6 +30,7 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
   };
 
   const handleCreateWorkspace = async () => {
+    setIsLoading(true);
     const uuid = uuidv4();
 
     if (user?.id) {
@@ -48,6 +50,11 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
         try {
           await createNewWorkspace(newWorkspace);
           router.refresh();
+          toast({
+            variant: "default",
+            title: "Workspace Created",
+            description: "New Private workspace has been created successfully!",
+          });
         } catch (error: any) {
           toast({
             variant: "destructive",
@@ -55,6 +62,8 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
             description: error.message,
           });
           console.log("Workspace Create Error:", error.message);
+        } finally {
+          setIsLoading(false);
         }
         return;
       }
@@ -64,6 +73,11 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
           await createNewWorkspace(newWorkspace);
           await addCollaborators(collaborators, uuid);
           router.refresh();
+          toast({
+            variant: "default",
+            title: "Workspace Created",
+            description: "New Shared workspace has been created!",
+          });
         } catch (error: any) {
           toast({
             variant: "destructive",
@@ -71,6 +85,8 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
             description: error.message,
           });
           console.log("Workspace Create Error:", error.message);
+        } finally {
+          setIsLoading(false);
         }
       }
     }
@@ -146,8 +162,7 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
         <div>
           <CollaboratorSearch existingCollaborators={collaborators} onGetCollaborator={(user) => addCollaborator(user)}>
             <Button type="button" className="text-sm mt-4">
-              <Plus />
-              Add Collaborators
+              <Plus /> Add Collaborators
             </Button>
           </CollaboratorSearch>
 
@@ -202,10 +217,10 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
       <Button
         type="button"
         variant="secondary"
-        disabled={!title || (permissions === "shared" && collaborators.length === 0)}
+        disabled={!title || (permissions === "shared" && collaborators.length === 0) || isLoading}
         onClick={handleCreateWorkspace}
       >
-        Create
+        {!isLoading ? <Loader /> : "Create"}
       </Button>
     </div>
   );
