@@ -58,6 +58,7 @@ const WorkspaceDropdown: React.FC<Props> = ({
             origin-top-right
             absolute
             w-full
+            overflow-y-auto
             rounded-md
             shadow-md
             z-50
@@ -73,7 +74,6 @@ const WorkspaceDropdown: React.FC<Props> = ({
               {!!privateWorkspaces.length && (
                 <>
                   <p className="text-sm text-muted-foreground p-2">Private</p>
-                  <hr />
                   {privateWorkspaces.map((option) => (
                     <SelectedWorkspace key={option.id} workspace={option} onClick={handleSelect} />
                   ))}
@@ -82,8 +82,8 @@ const WorkspaceDropdown: React.FC<Props> = ({
 
               {!!sharedWorkspaces.length && (
                 <>
-                  <p className="text-muted-foreground p-2">Shared</p>
                   <hr />
+                  <p className="text-sm text-muted-foreground p-2">Shared</p>
                   {sharedWorkspaces.map((option) => (
                     <SelectedWorkspace key={option.id} workspace={option} onClick={handleSelect} />
                   ))}
@@ -92,8 +92,8 @@ const WorkspaceDropdown: React.FC<Props> = ({
 
               {!!collaboratingWorkspaces.length && (
                 <>
-                  <p className="text-muted-foreground p-2">Shared</p>
                   <hr />
+                  <p className="text-sm text-muted-foreground p-2">Shared</p>
                   {collaboratingWorkspaces.map((option) => (
                     <SelectedWorkspace key={option.id} workspace={option} onClick={handleSelect} />
                   ))}
