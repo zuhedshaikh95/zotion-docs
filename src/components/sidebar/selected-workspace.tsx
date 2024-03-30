@@ -26,6 +26,7 @@ const SelectedWorkspace: React.FC<Props> = ({ onClick, workspace }) => {
       className="
         text-sm
         flex
+        rounded-md
         justify-center
         items-center
         hover:bg-muted
