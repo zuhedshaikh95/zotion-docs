@@ -10,6 +10,7 @@ export { default as DashboardSetup } from "./dashboard/dashboard-setup";
 export { default as Sidebar } from "./sidebar/sidebar";
 export { default as WorkspaceDropdown } from "./sidebar/workspace-dropdown";
 export { default as SelectedWorkspace } from "./sidebar/selected-workspace";
+export { default as PlanUsage } from "./sidebar/plan-usage";
 
 // global
 export { default as Loader } from "./global/Loader";
@@ -23,6 +24,7 @@ export { default as CollaboratorSearch } from "./global/collaborators-search";
 export { default as Button } from "./ui/button";
 export { default as Input } from "./ui/input";
 export { Label } from "./ui/label";
+export { Progress } from "./ui/progress";
 
 export * as Card from "./ui/card";
 export * as Avatar from "./ui/avatar";
