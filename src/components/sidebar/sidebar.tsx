@@ -11,7 +11,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import { WorkspaceDropdown } from "..";
+import { PlanUsage, WorkspaceDropdown } from "..";
 
 interface Props {
   params: { workspaceId: string };
@@ -55,6 +55,8 @@ const Sidebar: React.FC<Props> = async ({ params, className }) => {
             .concat(collaboratingWorkspaces, sharedWorkspaces)
             .find((workspace) => workspace.id === params.workspaceId)}
         />
+
+        <PlanUsage foldersLength={folders?.length ?? 0} subscription={subscription} />
       </div>
     </aside>
   );

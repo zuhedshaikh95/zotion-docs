@@ -2,7 +2,8 @@
 import { useAppState } from "@/libs/providers/app-state-provider";
 import { WorkspaceI } from "@/libs/supabase/supabase.types";
 import React, { useEffect, useState } from "react";
-import { CustomDialogTrigger, SelectedWorkspace, WorkspaceCreator } from "..";
+import { Button, CustomDialogTrigger, SelectedWorkspace, WorkspaceCreator } from "..";
+import { Plus } from "lucide-react";
 
 interface Props {
   privateWorkspaces: WorkspaceI[];
@@ -100,42 +101,42 @@ const WorkspaceDropdown: React.FC<Props> = ({
                 </>
               )}
             </div>
-
-            <CustomDialogTrigger
-              header="Create a Workspace"
-              content={<WorkspaceCreator />}
-              description="Workspaces give you the power to collaborate with others. You can change your workspace privacy settings after creating the workspace too."
-            >
-              <div
-                className="
-                  flex
-                  transition-all
-                  hover:bg-muted
-                  justify-center
-                  items-center
-                  gap-2
-                  p-2
-                  w-full"
-              >
-                <article
-                  className="
-                    text-slate-500
-                    rounded-full
-                    bg-slate-800
-                    w-4
-                    h-4
-                    flex
-                    items-center
-                    justify-center"
-                >
-                  +
-                </article>
-                Create workspace
-              </div>
-            </CustomDialogTrigger>
           </div>
         </div>
       )}
+      <CustomDialogTrigger
+        header="Create a Workspace"
+        content={<WorkspaceCreator />}
+        description="Workspaces give you the power to collaborate with others. You can change your workspace privacy settings after creating the workspace too."
+        className="w-full"
+      >
+        <div
+          className="
+            flex
+            transition-all
+            hover:bg-muted
+            justify-center
+            rounded-md
+            items-center
+            gap-2
+            p-2
+            my-1"
+        >
+          <article
+            className="
+              rounded-full
+              bg-slate-800
+              flex
+              w-5
+              h-5
+              items-center
+              justify-center"
+          >
+            <Plus width={16} height={16} className="text-slate-500" />
+          </article>
+          Create workspace
+        </div>
+      </CustomDialogTrigger>
     </div>
   );
 };
