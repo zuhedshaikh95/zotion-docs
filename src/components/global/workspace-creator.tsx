@@ -220,7 +220,7 @@ const WorkspaceCreator: React.FC<Props> = ({}) => {
         disabled={!title || (permissions === "shared" && collaborators.length === 0) || isLoading}
         onClick={handleCreateWorkspace}
       >
-        {!isLoading ? <Loader /> : "Create"}
+        {isLoading ? <Loader /> : "Create"}
       </Button>
     </div>
   );
