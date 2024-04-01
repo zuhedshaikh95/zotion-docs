@@ -56,6 +56,7 @@ const WorkspaceDropdown: React.FC<Props> = ({
       {isOpen && (
         <div
           className="
+            py-2
             origin-top-right
             absolute
             w-full
@@ -63,7 +64,7 @@ const WorkspaceDropdown: React.FC<Props> = ({
             rounded-md
             shadow-md
             z-50
-            h-[190px]
+            max-h-[300px]
             bg-black/10
             backdrop-blur-lg
             group
