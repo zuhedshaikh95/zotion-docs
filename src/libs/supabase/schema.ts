@@ -22,7 +22,6 @@ export const folders = pgTable("folders", {
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
-  logo: text("logo"),
   bannerUrl: text("banner_url"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
@@ -39,7 +38,6 @@ export const Files = pgTable("files", {
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
-  logo: text("logo"),
   bannerUrl: text("banner_url"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
