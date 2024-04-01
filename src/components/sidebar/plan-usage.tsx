@@ -4,6 +4,8 @@ import { useAppState } from "@/libs/providers/app-state-provider";
 import { SubscriptionI } from "@/libs/supabase/supabase.types";
 import React, { useEffect, useState } from "react";
 import { Progress } from "..";
+import Image from "next/image";
+import { DiamondIcon } from "../icons";
 
 interface Props {
   foldersLength: number;
@@ -31,7 +33,9 @@ const PlanUsage: React.FC<Props> = ({ foldersLength, subscription }) => {
             mb-2
             items-center"
         >
-          <div className="h-4 w-4"></div>
+          <div className="w-4 h-4 relative">
+            <DiamondIcon />
+          </div>
           <div
             className="
               flex
