@@ -11,7 +11,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import React from "react";
 import { twMerge } from "tailwind-merge";
-import { PlanUsage, WorkspaceDropdown } from "..";
+import { FoldersDropdownList, NativeNavigation, PlanUsage, Scroll, WorkspaceDropdown } from "..";
 
 interface Props {
   params: { workspaceId: string };
@@ -57,6 +57,30 @@ const Sidebar: React.FC<Props> = async ({ params, className }) => {
         />
 
         <PlanUsage foldersLength={folders?.length ?? 0} subscription={subscription} />
+
+        <NativeNavigation workspaceId={params.workspaceId} />
+
+        <Scroll.Area
+          className="
+            overflow-auto
+            relative
+            h-[450px]"
+        >
+          <div
+            className="
+              pointer-events-none
+              w-full
+              absolute
+              bottom-0
+              h-20
+              bg-gradient-to-t
+              from-background
+              to-transparent
+              z-40"
+          />
+
+          <FoldersDropdownList workspaceFolders={folders} workspaceId={params.workspaceId} />
+        </Scroll.Area>
       </div>
     </aside>
   );
