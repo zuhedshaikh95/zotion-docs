@@ -163,3 +163,24 @@ export const searchUsers = async (email: string) => {
     return [];
   }
 };
+
+export const createFolder = async (folder: FolderI) => {
+  try {
+    const result = await db.insert(folders).values(folder);
+    return { data: result, error: false };
+  } catch (error: any) {
+    console.log("Folder Query Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const updateFolder = async (folder: Partial<FolderI>, folderId: string) => {
+  try {
+    await db.update(folders).set(folder).where(eq(folders.id, folderId));
+
+    return { data: "Success", error: null };
+  } catch (error: any) {
+    console.log("Update Folder Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
