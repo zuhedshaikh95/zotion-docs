@@ -1,14 +1,14 @@
 import {
-  pgTable,
+  bigint,
+  boolean,
+  foreignKey,
+  integer,
+  jsonb,
   pgEnum,
-  uuid,
+  pgTable,
   text,
   timestamp,
-  foreignKey,
-  jsonb,
-  boolean,
-  bigint,
-  integer,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const keyStatus = pgEnum("key_status", ["default", "valid", "invalid", "expired"]);
@@ -67,7 +67,6 @@ export const files = pgTable("files", {
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
-  logo: text("logo"),
   bannerUrl: text("banner_url"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
@@ -81,7 +80,6 @@ export const folders = pgTable("folders", {
   iconId: text("icon_id").notNull(),
   data: text("data"),
   inTrash: text("in_trash"),
-  logo: text("logo"),
   bannerUrl: text("banner_url"),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
