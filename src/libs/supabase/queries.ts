@@ -43,7 +43,8 @@ export const getFolders = async (workspaceId: string) => {
 
     return { data, error: null };
   } catch (error: any) {
-    return { data: null, error: error.message };
+    console.log("Folders Get Error:", error.message);
+    return { data: [], error: error.message };
   }
 };
 
@@ -174,6 +175,16 @@ export const createFolder = async (folder: FolderI) => {
   }
 };
 
+export const createFile = async (file: FileI) => {
+  try {
+    const response = await db.insert(files).values(file);
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("File Create Action Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
 export const updateFolder = async (folder: Partial<FolderI>, folderId: string) => {
   try {
     await db.update(folders).set(folder).where(eq(folders.id, folderId));
@@ -181,6 +192,17 @@ export const updateFolder = async (folder: Partial<FolderI>, folderId: string) =
     return { data: "Success", error: null };
   } catch (error: any) {
     console.log("Update Folder Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const updateFile = async (file: Partial<FileI>, fileId: string) => {
+  try {
+    const response = await db.update(files).set(file).where(eq(files.id, fileId));
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("Update File Error:", error.message);
     return { data: null, error: error.message };
   }
 };
