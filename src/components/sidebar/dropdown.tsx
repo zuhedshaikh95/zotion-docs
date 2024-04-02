@@ -1,6 +1,6 @@
 "use client";
 import { useAppState } from "@/libs/providers/app-state-provider";
-import { updateFolder } from "@/libs/supabase/queries";
+import { createFile, updateFile, updateFolder } from "@/libs/supabase/queries";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import clsx from "clsx";
 import { EmojiClickData } from "emoji-picker-react";
@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
 import { Accordian, CustomTooltip, EmojiPicker } from "..";
 import { useToast } from "../ui/use-toast";
+import { FileI } from "@/libs/supabase/supabase.types";
+import { v4 as uuidv4 } from "uuid";
 
 interface Props {
   title: string;
@@ -64,7 +66,7 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
         "border-none text-md": isFolder,
         "border-none ml-6 text-[16px] py-1": !isFolder,
       }),
-    [listType]
+    [isFolder, listType]
   );
 
   const groupIdentifies = useMemo(
@@ -73,7 +75,7 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
         "group/folder": isFolder,
         "group/file": !isFolder,
       }),
-    []
+    [isFolder, listType]
   );
 
   const hoverStyles = useMemo(
@@ -82,11 +84,55 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
         "group-hover/file:block": !isFolder,
         "group-hover/folder:block": isFolder,
       }),
-    [isFolder]
+    [isFolder, listType]
   );
 
   // add file
-  const addNewFile = () => {};
+  const addNewFile = async () => {
+    if (!workspaceId) return;
+
+    const newFile: FileI = {
+      bannerUrl: null,
+      createdAt: new Date().toISOString(),
+      data: null,
+      folderId: id,
+      iconId: "📄",
+      id: uuidv4(),
+      inTrash: null,
+      title: "Untitled",
+      workspaceId,
+    };
+
+    try {
+      const { data, error } = await createFile(newFile);
+
+      if (error) {
+        toast({
+          title: "File Create Error",
+          variant: "destructive",
+          description: error,
+        });
+        return;
+      }
+
+      toast({
+        title: "File Created!",
+        description: "New file created successfully!",
+      });
+
+      dispatch({
+        type: "ADD_FILE",
+        payload: { file: newFile, folderId: id, workspaceId },
+      });
+    } catch (error: any) {
+      console.log("File Create Error:", error.message);
+      toast({
+        variant: "destructive",
+        title: "File Create Error",
+        description: error.message,
+      });
+    }
+  };
 
   // move to trash
   const moveToTrash = () => {};
@@ -94,10 +140,10 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
   // Navigate to different page
   const handleNavigateToPage = (accordianId: string, type: typeof listType) => {
     if (type === "folder") {
-      router.push(`dashboard/${workspaceId}/${accordianId}`);
+      router.push(`/dashboard/${workspaceId}/${accordianId}`);
       return;
     }
-    router.push(`dashboard/${workspaceId}/${folderId}/${accordianId}`);
+    router.push(`/dashboard/${workspaceId}/${folderId}/${accordianId}`);
   };
 
   // double click handler
@@ -118,21 +164,23 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
         return;
       }
 
-      // if (fId.length === 2 && fId[1]) {
-      //   if (!fileTitle) return;
-      //   const { data, error } = await updateFile({ title: fileTitle }, fId[1]);
-      //   if (error) {
-      //     toast({
-      //       title: 'Error',
-      //       variant: 'destructive',
-      //       description: 'Could not update the title for this file',
-      //     });
-      //   } else
-      //     toast({
-      //       title: 'Success',
-      //       description: 'File title changed.',
-      //     });
-      // }
+      if (fId.length === 2 && fId[1]) {
+        if (!fileTitle) return;
+
+        const { data, error } = await updateFile({ title: fileTitle }, fId[1]);
+
+        if (error) {
+          toast({
+            title: "Error",
+            variant: "destructive",
+            description: "Could not update the title for this file",
+          });
+        } else
+          toast({
+            title: "Success",
+            description: "File title changed.",
+          });
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -191,7 +239,7 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
       dispatch({
         type: "UPDATE_FOLDER",
         payload: {
-          folder: { title },
+          folder: { title: event.target.value },
           folderId: fId[0],
           workspaceId,
         },
@@ -288,6 +336,22 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
           </div>
         </div>
       </Accordian.Trigger>
+
+      <Accordian.Content>
+        {state.workspaces
+          .find((workspace) => workspace.id === workspaceId)
+          ?.folders.find((folder) => folder.id === id)
+          ?.files.filter((file) => !file.inTrash)
+          .map((file) => (
+            <Dropdown
+              key={file.id}
+              title={file.title}
+              listType="file"
+              id={`${id}folder${file.id}`}
+              iconId={file.iconId}
+            />
+          ))}
+      </Accordian.Content>
     </Accordian.Item>
   );
 };
