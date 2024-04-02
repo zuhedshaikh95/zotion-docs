@@ -1,9 +1,9 @@
 "use client";
 import { useAppState } from "@/libs/providers/app-state-provider";
 import { WorkspaceI } from "@/libs/supabase/supabase.types";
-import React, { useEffect, useState } from "react";
-import { Button, CustomDialogTrigger, SelectedWorkspace, WorkspaceCreator } from "..";
 import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CustomDialogTrigger, SelectedWorkspace, WorkspaceCreator } from "..";
 
 interface Props {
   privateWorkspaces: WorkspaceI[];
