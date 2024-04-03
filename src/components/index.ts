@@ -14,6 +14,10 @@ export { default as PlanUsage } from "./sidebar/plan-usage";
 export { default as NativeNavigation } from "./sidebar/native-navigation";
 export { default as FoldersDropdownList } from "./sidebar/folders-dropdown-list";
 
+// settings
+export { default as Settings } from "./settings/settings";
+export { default as SettingsForm } from "./settings/settings-form";
+
 // global
 export { default as Loader } from "./global/Loader";
 export { default as Container } from "./global/container";
