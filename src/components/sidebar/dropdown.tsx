@@ -11,6 +11,7 @@ import { Accordian, CustomTooltip, EmojiPicker } from "..";
 import { useToast } from "../ui/use-toast";
 import { FileI } from "@/libs/supabase/supabase.types";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@/libs/providers/auth-provider";
 
 interface Props {
   title: string;
@@ -27,6 +28,7 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // file title
 
@@ -135,7 +137,67 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
   };
 
   // move to trash
-  const moveToTrash = () => {};
+  const moveToTrash = async () => {
+    const pathId = id?.split("folder");
+
+    if (!user || !pathId.length || !workspaceId) return;
+
+    if (isFolder) {
+      try {
+        const { data, error } = await updateFolder({ inTrash: `Deleted by ${user?.email}` }, pathId[0]);
+
+        if (error) {
+          toast({
+            title: "Folder Delete Error",
+            variant: "destructive",
+            description: error,
+          });
+          return;
+        }
+
+        dispatch({
+          type: "UPDATE_FOLDER",
+          payload: { folder: { inTrash: `Deleted by ${user?.email}` }, folderId: pathId[0], workspaceId },
+        });
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Folder Delete Error",
+          description: error.message,
+        });
+      }
+      return;
+    }
+
+    try {
+      const { data, error } = await updateFile({ inTrash: `Deleted by ${user?.email}` }, pathId[1]);
+
+      if (error) {
+        toast({
+          title: "File Create Error",
+          variant: "destructive",
+          description: error,
+        });
+        return;
+      }
+
+      dispatch({
+        type: "UPDATE_FILE",
+        payload: {
+          file: { inTrash: `Deleted by ${user?.email}` },
+          folderId: pathId[0],
+          workspaceId,
+          fileId: pathId[1],
+        },
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "File Delete Error",
+        description: error.message,
+      });
+    }
+  };
 
   // Navigate to different page
   const handleNavigateToPage = (accordianId: string, type: typeof listType) => {
