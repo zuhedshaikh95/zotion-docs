@@ -13,13 +13,14 @@ export { default as SelectedWorkspace } from "./sidebar/selected-workspace";
 export { default as PlanUsage } from "./sidebar/plan-usage";
 export { default as NativeNavigation } from "./sidebar/native-navigation";
 export { default as FoldersDropdownList } from "./sidebar/folders-dropdown-list";
+export { default as UserCard } from "./sidebar/user-card";
 
 // settings
 export { default as Settings } from "./settings/settings";
 export { default as SettingsForm } from "./settings/settings-form";
 
 // global
-export { default as Loader } from "./global/Loader";
+export { default as Loader } from "./global/loader";
 export { default as Container } from "./global/container";
 export { default as EmojiPicker } from "./global/emoji-picker";
 export { default as CustomDialogTrigger } from "./global/custom-dialogue-trigger";
@@ -27,6 +28,8 @@ export { default as WorkspaceCreator } from "./global/workspace-creator";
 export { default as CollaboratorSearch } from "./global/collaborators-search";
 export { default as CustomTooltip } from "./global/custom-tooltip";
 export { default as Dropdown } from "./sidebar/dropdown";
+export { default as LogoutButton } from "./global/logout-button";
+export { default as ModeToggle } from "./global/mode-toggle";
 
 // ui
 export { default as Button } from "./ui/button";
