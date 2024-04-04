@@ -45,8 +45,6 @@ export default function Signup() {
     try {
       const response = await authUserSignup({ email, password });
 
-      console.log(response);
-
       if (response.error) {
         setSubmitError(response.error.message);
         form.reset();
