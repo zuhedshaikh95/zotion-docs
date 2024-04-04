@@ -25,8 +25,8 @@ export async function authUserSignup({ email, password }: z.infer<typeof LoginFo
     const supabase = createRouteHandlerClient({ cookies });
     const response = await supabase.from("profiles").select("*").eq(email, "email");
 
-    if (response.data?.length) {
-      return { error: { message: "Account with email ID already exists." } };
+    if (response.error) {
+      return { error: { message: "Account with this email ID already exists." } };
     }
 
     const signup = await supabase.auth.signUp({
