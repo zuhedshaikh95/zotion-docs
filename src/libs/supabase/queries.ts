@@ -4,6 +4,7 @@ import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
 import { FileI, FolderI, SubscriptionI, UserI, WorkspaceI } from "./supabase.types";
+import { revalidatePath } from "next/cache";
 
 export const getUserSubscription = async (userId: string) => {
   try {
@@ -203,6 +204,50 @@ export const updateFile = async (file: Partial<FileI>, fileId: string) => {
     return { data: response, error: null };
   } catch (error: any) {
     console.log("Update File Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const updateWorkspace = async (workspace: Partial<WorkspaceI>, workspaceId: string) => {
+  try {
+    const response = await db.update(workspaces).set(workspace).where(eq(workspaces.id, workspaceId));
+
+    revalidatePath(`/dashboard/${workspaceId}`);
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("Workspace Update Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const removeCollaborators = async (users: UserI[], workspaceId: string) => {
+  try {
+    users.forEach(async (user) => {
+      const userExists = await db.query.collaborators.findFirst({
+        where: (dbUser, { eq, and }) => and(eq(dbUser.userId, user.id), eq(dbUser.workspaceId, workspaceId)),
+      });
+
+      if (userExists)
+        await db
+          .delete(collaborators)
+          .where(and(eq(collaborators.workspaceId, workspaceId), eq(collaborators.userId, user.id)));
+    });
+
+    return { data: "Collaborators updated!", error: null };
+  } catch (error: any) {
+    console.log("Remove Collaborators Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteWorkspace = async (workspaceId: string) => {
+  try {
+    const response = await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("Delete Workspace Error:", error.message);
     return { data: null, error: error.message };
   }
 };
