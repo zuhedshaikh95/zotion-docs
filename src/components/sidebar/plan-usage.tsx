@@ -4,7 +4,6 @@ import { useAppState } from "@/libs/providers/app-state-provider";
 import { SubscriptionI } from "@/libs/supabase/supabase.types";
 import React, { useEffect, useState } from "react";
 import { Progress } from "..";
-import Image from "next/image";
 import { DiamondIcon } from "../icons";
 
 interface Props {
