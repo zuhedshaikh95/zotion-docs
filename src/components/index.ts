@@ -36,6 +36,7 @@ export { default as Button } from "./ui/button";
 export { default as Input } from "./ui/input";
 export { Label } from "./ui/label";
 export { Progress } from "./ui/progress";
+export { Separator } from "./ui/separator";
 
 export * as Card from "./ui/card";
 export * as Avatar from "./ui/avatar";
