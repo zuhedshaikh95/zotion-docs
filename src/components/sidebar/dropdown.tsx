@@ -205,7 +205,7 @@ const Dropdown: React.FC<Props> = ({ iconId, id, listType, title, children, disa
       router.push(`/dashboard/${workspaceId}/${accordianId}`);
       return;
     }
-    router.push(`/dashboard/${workspaceId}/${folderId}/${accordianId}`);
+    router.push(`/dashboard/${workspaceId}/${folderId}/${accordianId.split("folder")[1]}`);
   };
 
   // double click handler
