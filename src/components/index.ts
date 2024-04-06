@@ -6,6 +6,9 @@ export { default as Navbar } from "./landing-page/navbar";
 // dasboard
 export { default as DashboardSetup } from "./dashboard/dashboard-setup";
 
+// quill-editor
+export { default as QuillEditor } from "./quill-editor/quill-editor";
+
 // sidebar
 export { default as Sidebar } from "./sidebar/sidebar";
 export { default as WorkspaceDropdown } from "./sidebar/workspace-dropdown";
