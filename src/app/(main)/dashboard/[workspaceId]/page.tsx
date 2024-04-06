@@ -1,8 +1,22 @@
-"use client";
-import { useParams } from "next/navigation";
+export const dynamic = "force-dynamic";
 
-export default function Workspace() {
-  const { workspaceId } = useParams();
+import { QuillEditor } from "@/components";
+import { getWorkspaceDetails } from "@/libs/supabase/queries";
+import { redirect } from "next/navigation";
+interface PageProps {
+  params: {
+    workspaceId: string;
+  };
+}
 
-  return <div>{workspaceId}</div>;
+export default async function Workspace({ params }: PageProps) {
+  const { data, error } = await getWorkspaceDetails(params.workspaceId);
+
+  if (error || !data) redirect("/dashboard");
+
+  return (
+    <div className="relative">
+      <QuillEditor dirType="workspace" fileId={params.workspaceId} dirDetails={data} />
+    </div>
+  );
 }
