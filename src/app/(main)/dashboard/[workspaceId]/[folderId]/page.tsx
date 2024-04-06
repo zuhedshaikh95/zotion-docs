@@ -1,9 +1,23 @@
-"use client";
-import { useParams } from "next/navigation";
-import React from "react";
+export const dynamic = "force-dynamic";
 
-export default function Folder() {
-  const { folderId } = useParams();
+import { QuillEditor } from "@/components";
+import { getFolderDetails } from "@/libs/supabase/queries";
+import { redirect } from "next/navigation";
 
-  return <div>{folderId}</div>;
+interface PageProps {
+  params: {
+    folderId: string;
+  };
+}
+
+export default async function Folder({ params }: PageProps) {
+  const { data, error } = await getFolderDetails(params.folderId);
+
+  if (error || !data) redirect("/dashboard");
+
+  return (
+    <div className="relative">
+      <QuillEditor dirType="folder" fileId={params.folderId} dirDetails={data} />
+    </div>
+  );
 }
