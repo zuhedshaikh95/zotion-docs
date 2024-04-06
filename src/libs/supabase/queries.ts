@@ -1,10 +1,10 @@
 "use server";
 import { and, eq, ilike, notExists } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
 import { FileI, FolderI, SubscriptionI, UserI, WorkspaceI } from "./supabase.types";
-import { revalidatePath } from "next/cache";
 
 export const getUserSubscription = async (userId: string) => {
   try {
@@ -248,6 +248,87 @@ export const deleteWorkspace = async (workspaceId: string) => {
     return { data: response, error: null };
   } catch (error: any) {
     console.log("Delete Workspace Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const getWorkspaceDetails = async (workspaceId: string) => {
+  const isValid = validateUUID(workspaceId);
+
+  if (!isValid) return { data: null, error: "Invalid Id!" };
+
+  try {
+    const workspace: WorkspaceI | undefined = await db.query.workspaces.findFirst({
+      where: (dbWorspace, { eq }) => eq(dbWorspace.id, workspaceId),
+    });
+
+    return { data: workspace, error: null };
+  } catch (error: any) {
+    console.log("Wokspace Create Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteFile = async (fileId: string) => {
+  const isValidId = validateUUID(fileId);
+
+  if (!isValidId) return { data: null, error: "Invalid Id!" };
+
+  try {
+    const response = await db.delete(files).where(eq(files.id, fileId));
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("File Delete Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const deleteFolder = async (folderId: string) => {
+  const isValidId = validateUUID(folderId);
+
+  if (!isValidId) return { data: null, error: "Invalid Id!" };
+
+  try {
+    const response = await db.delete(folders).where(eq(folders.id, folderId));
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("Folder Delete Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const getFolderDetails = async (folderId: string) => {
+  const isValid = validateUUID(folderId);
+
+  if (!isValid) return { data: null, error: "Invalid Id" };
+
+  try {
+    const response: FolderI | undefined = await db.query.folders.findFirst({
+      where: (dbFolder, { eq }) => eq(dbFolder.id, folderId),
+    });
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("Folder Details Error:", error.message);
+    return { data: null, error: "Error" };
+  }
+};
+
+export const getFileDetails = async (fileId: string) => {
+  const isValidId = validateUUID(fileId);
+
+  if (!isValidId) return { data: null, error: "Invalid Id!" };
+
+  try {
+    const response: FileI | undefined = await db.query.files.findFirst({
+      where: (dbFile, { eq }) => eq(dbFile.id, fileId),
+    });
+
+    return { data: response, error: null };
+  } catch (error: any) {
+    console.log("File Details Error:", error.message);
     return { data: null, error: error.message };
   }
 };
