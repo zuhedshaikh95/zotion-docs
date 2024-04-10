@@ -3,6 +3,10 @@ export { default as TitleSection } from "./landing-page/title-section";
 export { default as CustomCard } from "./landing-page/custom-card";
 export { default as Navbar } from "./landing-page/navbar";
 
+// banner-upload
+export { default as BannerUpload } from "./banner-upload/banner-upload";
+export { default as BannerUploadForm } from "./banner-upload/banner-upload-form";
+
 // dasboard
 export { default as DashboardSetup } from "./dashboard/dashboard-setup";
 
@@ -40,6 +44,7 @@ export { default as Input } from "./ui/input";
 export { Label } from "./ui/label";
 export { Progress } from "./ui/progress";
 export { Separator } from "./ui/separator";
+export { Badge } from "./ui/badge";
 
 export * as Card from "./ui/card";
 export * as Avatar from "./ui/avatar";
