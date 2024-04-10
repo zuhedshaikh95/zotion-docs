@@ -88,6 +88,7 @@ export const getCollaboratingWorkspaces = async (userId: string) => {
       inTrash: workspaces.inTrash,
       logo: workspaces.logo,
       createdAt: workspaces.createdAt,
+      bannerUrl: workspaces.bannerUrl,
     })
     .from(users)
     .innerJoin(collaborators, eq(users.id, collaborators.userId))
