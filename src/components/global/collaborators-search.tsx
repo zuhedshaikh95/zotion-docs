@@ -28,8 +28,8 @@ const CollaboratorSearch: React.FC<Props> = ({ children, existingCollaborators, 
     if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
-      const response = await searchUsers(event.target.value);
-      setSearchResults(response);
+      const users = await searchUsers(event.target.value);
+      setSearchResults(users);
     }, 500);
   };
 
@@ -68,7 +68,7 @@ const CollaboratorSearch: React.FC<Props> = ({ children, existingCollaborators, 
             rounded-md"
         >
           {searchResults
-            .filter((resultUser) => !existingCollaborators.some((existingUser) => existingUser.id !== resultUser.id))
+            .filter((resultUser) => !existingCollaborators.some((existingUser) => existingUser.id === resultUser.id))
             .filter((resultUser) => resultUser.id !== user?.id)
             .map((user) => (
               <div
