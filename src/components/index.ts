@@ -58,3 +58,4 @@ export * as Sheet from "./ui/sheet";
 export * as Scroll from "./ui/scroll-area";
 export * as Tooltip from "./ui/tooltip";
 export * as Accordian from "./ui/accordion";
+export * as AlertDialog from "./ui/alert-dialog";
