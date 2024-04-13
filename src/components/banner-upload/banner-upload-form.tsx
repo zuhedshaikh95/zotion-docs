@@ -12,12 +12,11 @@ import { updateFile, updateFolder, updateWorkspace } from "@/libs/supabase/queri
 import { useToast } from "../ui/use-toast";
 
 interface Props {
-  details: WorkspaceI | FolderI | FileI;
   dirType: "workspace" | "folder" | "file";
   id: string;
 }
 
-const BannerUploadForm: React.FC<Props> = ({ details, dirType, id }) => {
+const BannerUploadForm: React.FC<Props> = ({ dirType, id }) => {
   const supabase = createClientComponentClient();
   const { toast } = useToast();
   const { state, workspaceId, folderId, dispatch } = useAppState();
