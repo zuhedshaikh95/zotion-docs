@@ -1,14 +1,20 @@
 "use client";
 import { useAppState } from "@/libs/providers/app-state-provider";
 import { useAuth } from "@/libs/providers/auth-provider";
-import { addCollaborators, deleteWorkspace, removeCollaborators, updateWorkspace } from "@/libs/supabase/queries";
+import {
+  addCollaborators,
+  deleteWorkspace,
+  getCollaborators,
+  removeCollaborators,
+  updateWorkspace,
+} from "@/libs/supabase/queries";
 import { UserI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Briefcase, Lock, Plus, Share } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Avatar, Button, CollaboratorSearch, Input, Label, Scroll, Select, Separator } from "..";
+import { Alert, AlertDialog, Avatar, Button, CollaboratorSearch, Input, Label, Scroll, Select, Separator } from "..";
 import { useToast } from "../ui/use-toast";
 
 interface Props {}
@@ -26,18 +32,33 @@ const SettingsForm: React.FC<Props> = ({}) => {
   const [workspaceDetails, setWorkspaceDetails] = useState<WorkspaceI | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
 
+  // get workspace details
   useEffect(() => {
     const showingWorkspace = state.workspaces.find((workspace) => workspace.id === workspaceId);
 
     if (showingWorkspace) setWorkspaceDetails(showingWorkspace);
   }, [workspaceId, state]);
 
+  // get all collaborators
+  useEffect(() => {
+    if (!workspaceId) return;
+
+    (async () => {
+      const { data, error } = await getCollaborators(workspaceId);
+
+      if (data?.length) {
+        setPermissions("shared");
+        setCollaborators(data);
+      }
+    })();
+  }, [workspaceId]);
+
   // payment portal
   // add collaborators
   const handleAddCollaborator = async (user: UserI) => {
     if (!workspaceId) return;
 
-    const { error } = await addCollaborators([...collaborators, user], workspaceId);
+    const { error } = await addCollaborators([user], workspaceId);
 
     if (error) {
       toast({
@@ -135,6 +156,14 @@ const SettingsForm: React.FC<Props> = ({}) => {
     }
   };
 
+  const handlePermissionOnChange = async (value: string) => {
+    if (value === "private" && collaborators.length) {
+      setOpenAlertMessage(true);
+      return;
+    }
+    setPermissions(value);
+  };
+
   // onclicks
   const handleDeleteWorkspace = async () => {
     if (!workspaceId) return;
@@ -163,9 +192,18 @@ const SettingsForm: React.FC<Props> = ({}) => {
     router.replace("/dashboard");
   };
 
+  const handleAlertDialogClick = async () => {
+    if (!workspaceId) return;
+
+    if (collaborators.length) {
+      await removeCollaborators(collaborators, workspaceId);
+    }
+    setPermissions("private");
+    setOpenAlertMessage(false);
+  };
+
   // fetching avatar details
-  // get workspace details
-  // get all collaborators
+
   // payment portal redirect
 
   return (
@@ -202,7 +240,7 @@ const SettingsForm: React.FC<Props> = ({}) => {
         <Label className="text-sm text-muted-foreground" htmlFor="permissions">
           Permissions
         </Label>
-        <Select.Root onValueChange={(value) => setPermissions(value)} defaultValue={permissions}>
+        <Select.Root onValueChange={handlePermissionOnChange} value={permissions}>
           <Select.Trigger className="w-full h-24 -mt-3">
             <Select.Value />
           </Select.Trigger>
@@ -262,7 +300,7 @@ const SettingsForm: React.FC<Props> = ({}) => {
 
               <Scroll.Area
                 className="
-                h-[120px]
+                h-32
                 overflow-y-auto
                 w-full
                 rounded-md
@@ -326,6 +364,23 @@ const SettingsForm: React.FC<Props> = ({}) => {
           </Button>
         </Alert.Root>
       </>
+
+      <AlertDialog.Root open={openAlertMessage}>
+        <AlertDialog.Content>
+          <AlertDialog.Header>
+            <AlertDialog.Title>Are you sure?</AlertDialog.Title>
+            <AlertDialog.Description>
+              Changing a shared workspace to a Private workspace will remove all collaborators permanently.
+            </AlertDialog.Description>
+          </AlertDialog.Header>
+
+          <AlertDialog.Footer>
+            <AlertDialog.Cancel onClick={() => setOpenAlertMessage(false)}>Cancel</AlertDialog.Cancel>
+
+            <AlertDialog.Action onClick={handleAlertDialogClick}>Continue</AlertDialog.Action>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
     </div>
   );
 };
