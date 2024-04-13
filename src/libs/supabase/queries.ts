@@ -1,6 +1,5 @@
 "use server";
-import { and, eq, ilike, notExists } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { and, eq, exists, ilike, notExists } from "drizzle-orm";
 import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
@@ -213,8 +212,6 @@ export const updateWorkspace = async (workspace: Partial<WorkspaceI>, workspaceI
   try {
     const response = await db.update(workspaces).set(workspace).where(eq(workspaces.id, workspaceId));
 
-    revalidatePath(`/dashboard/${workspaceId}`);
-
     return { data: response, error: null };
   } catch (error: any) {
     console.log("Workspace Update Error:", error.message);
@@ -330,6 +327,34 @@ export const getFileDetails = async (fileId: string) => {
     return { data: response, error: null };
   } catch (error: any) {
     console.log("File Details Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const getCollaborators = async (workspaceId: string) => {
+  const isValidId = validateUUID(workspaceId);
+
+  if (!isValidId) return { data: null, error: "Invalid Id!" };
+
+  try {
+    const collaborators = await db.query.collaborators.findMany({
+      where: (dbCollaborator, { eq }) => eq(dbCollaborator.workspaceId, workspaceId),
+    });
+
+    if (!collaborators.length) return { data: [], error: null };
+
+    const users: Promise<UserI | undefined>[] = collaborators.map(async (collaborators) => {
+      const userExists = await db.query.users.findFirst({
+        where: (dbUser, { eq }) => eq(dbUser.id, collaborators.userId),
+      });
+      return userExists;
+    });
+
+    const resolvedUsers = await Promise.all(users);
+
+    return { data: resolvedUsers.filter(Boolean) as UserI[], error: null };
+  } catch (error: any) {
+    console.log("getCollaborators Error:", error.message);
     return { data: null, error: error.message };
   }
 };
