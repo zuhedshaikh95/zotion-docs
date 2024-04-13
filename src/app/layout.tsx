@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import AppStateProvider from "@/libs/providers/app-state-provider";
 import AuthProvider from "@/libs/providers/auth-provider";
 import { ThemeProvider } from "@/libs/providers/next-theme-provider";
+import { SocketProvider } from "@/libs/providers/socket-provider";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { twMerge } from "tailwind-merge";
@@ -25,8 +26,10 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AppStateProvider>
             <AuthProvider>
-              <Toaster />
-              {children}
+              <SocketProvider>
+                <Toaster />
+                {children}
+              </SocketProvider>
             </AuthProvider>
           </AppStateProvider>
         </ThemeProvider>
