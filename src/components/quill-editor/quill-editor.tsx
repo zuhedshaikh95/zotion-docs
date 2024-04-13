@@ -1,19 +1,29 @@
 "use client";
 import { TOOLBAR_OPTIONS } from "@/configs/quill-editor.config";
 import { useAppState } from "@/libs/providers/app-state-provider";
-import { deleteFile, deleteFolder, updateFile, updateFolder, updateWorkspace } from "@/libs/supabase/queries";
+import { useAuth } from "@/libs/providers/auth-provider";
+import { useSocket } from "@/libs/providers/socket-provider";
+import {
+  deleteFile,
+  deleteFolder,
+  getFileDetails,
+  getFolderDetails,
+  getWorkspaceDetails,
+  updateFile,
+  updateFolder,
+  updateWorkspace,
+} from "@/libs/supabase/queries";
 import { FileI, FolderI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import type { Quill } from "quill";
-import "quill/dist/quill.snow.css";
-import React, { useCallback, useMemo, useState } from "react";
-import { Avatar, Badge, BannerUpload, Button, EmojiPicker, Tooltip } from "../";
-import { useToast } from "../ui/use-toast";
 import { EmojiClickData } from "emoji-picker-react";
 import { XCircleIcon } from "lucide-react";
-import dynamic from "next/dynamic";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import type { Quill } from "quill";
+import "quill/dist/quill.snow.css";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Avatar, Badge, BannerUpload, Button, EmojiPicker, Tooltip } from "../";
+import { useToast } from "../ui/use-toast";
 
 interface Props {
   dirDetails: FileI | FolderI | WorkspaceI;
@@ -22,9 +32,13 @@ interface Props {
 }
 
 const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
+  const router = useRouter();
   const supabase = createClientComponentClient();
   const pathName = usePathname();
   const { toast } = useToast();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { user } = useAuth();
+  const { socket, isConnected } = useSocket();
   const { state, dispatch, workspaceId, folderId } = useAppState();
   const [quill, setQuill] = useState<Quill | null>(null);
   const [collaborators, setCollaborators] = useState<{ id: string; email: string; avatarUrl: string }[]>([
@@ -88,6 +102,142 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
       bannerUrl: dirDetails.bannerUrl,
     } as WorkspaceI | FileI | FolderI;
   }, [state, workspaceId, folderId]);
+
+  // update and sync server client states
+  useEffect(() => {
+    (async () => {
+      if (!workspaceId || !fileId || quill === null) return;
+
+      if (dirType === "file") {
+        const { data: fileData, error: fileError } = await getFileDetails(fileId);
+
+        if (fileError || !fileData) {
+          return router.replace(`/dashboard/${workspaceId}`);
+        }
+
+        quill.setContents(JSON.parse(`${fileData.data}`));
+
+        dispatch({
+          type: "UPDATE_FILE",
+          payload: { file: { data: fileData.data }, fileId, folderId: fileData.folderId, workspaceId },
+        });
+      }
+
+      if (dirType === "folder") {
+        const { data: folderData, error: folderError } = await getFolderDetails(fileId);
+
+        if (folderError || !folderData) {
+          return router.replace(`/dashboard/${workspaceId}`);
+        }
+
+        quill.setContents(JSON.parse(`${folderData.data}`));
+
+        dispatch({
+          type: "UPDATE_FOLDER",
+          payload: { folder: { data: folderData.data }, folderId: fileId, workspaceId },
+        });
+      }
+
+      if (dirType === "workspace") {
+        const { data: workspaceData, error: workspaceError } = await getWorkspaceDetails(fileId);
+
+        if (workspaceError || !workspaceData) {
+          return router.replace("/dashboard");
+        }
+
+        quill.setContents(JSON.parse(`${workspaceData.data}`));
+
+        dispatch({
+          type: "UPDATE_WORKSPACE",
+          payload: { workspace: { data: workspaceData.data }, workspaceId: fileId },
+        });
+      }
+    })();
+  }, [fileId, workspaceId, quill, dirType]);
+
+  // create/join room
+  useEffect(() => {
+    if (socket === null || quill === null || !fileId) return;
+
+    socket.emit("create-room", fileId);
+  }, [socket, quill, fileId]);
+
+  // send quill changes to all clients
+  useEffect(() => {
+    if (quill === null || socket === null || !fileId || !user) return;
+
+    // cursor updates
+    const selectionChangeHandler = () => {};
+
+    // quill change
+    const quillChangeHandler = (delta: any, prevDelta: any, source: any) => {
+      if (source !== "user") return;
+
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+
+      setSaving(true);
+      const contents = quill.getContents();
+
+      saveTimerRef.current = setTimeout(async () => {
+        if (fileId) {
+          if (dirType == "workspace") {
+            await updateWorkspace({ data: JSON.stringify(contents) }, fileId);
+
+            dispatch({
+              type: "UPDATE_WORKSPACE",
+              payload: { workspace: { data: JSON.stringify(contents) }, workspaceId: fileId },
+            });
+          }
+          if (dirType == "folder") {
+            if (!workspaceId) return;
+
+            await updateFolder({ data: JSON.stringify(contents) }, fileId);
+
+            dispatch({
+              type: "UPDATE_FOLDER",
+              payload: { folder: { data: JSON.stringify(contents) }, workspaceId, folderId: fileId },
+            });
+          }
+          if (dirType == "file") {
+            if (!workspaceId || !folderId) return;
+
+            await updateFile({ data: JSON.stringify(contents) }, fileId);
+
+            dispatch({
+              type: "UPDATE_FILE",
+              payload: { file: { data: JSON.stringify(contents) }, workspaceId, folderId: folderId, fileId },
+            });
+          }
+        }
+        setSaving(false);
+      }, 850);
+      socket.emit("send-changes", delta, fileId);
+    };
+
+    quill.on("text-change", quillChangeHandler);
+
+    return () => {
+      quill.off("text-change", quillChangeHandler);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [quill, socket, fileId, user, details, workspaceId, dispatch, folderId]);
+
+  // receive quill changes from server
+  useEffect(() => {
+    if (quill === null || socket === null) return;
+
+    const socketHandler = (deltas: any, id: string) => {
+      if (id === fileId) {
+        quill.updateContents(deltas);
+      }
+    };
+
+    socket.on("receive-changes", socketHandler);
+
+    return () => {
+      socket.off("receive-changes", socketHandler);
+    };
+  }, [quill, socket, fileId]);
 
   const wrapperRef = useCallback(async (wrapper: HTMLDivElement) => {
     if (typeof window !== "undefined") {
@@ -511,7 +661,6 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
           </div>
           <div className="flex">
             <BannerUpload
-              details={details}
               id={fileId}
               dirType={dirType}
               className="
