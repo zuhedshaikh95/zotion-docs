@@ -211,6 +211,7 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
         }
         setSaving(false);
       }, 850);
+
       socket.emit("send-changes", delta, fileId);
     };
 
@@ -226,9 +227,9 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
   useEffect(() => {
     if (quill === null || socket === null) return;
 
-    const socketHandler = (deltas: any, id: string) => {
+    const socketHandler = (delta: any, id: string) => {
       if (id === fileId) {
-        quill.updateContents(deltas);
+        quill.updateContents(delta);
       }
     };
 
