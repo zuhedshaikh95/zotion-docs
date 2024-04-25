@@ -1,5 +1,5 @@
 "use server";
-import { and, eq, exists, ilike, notExists } from "drizzle-orm";
+import { and, eq, ilike, notExists } from "drizzle-orm";
 import { validate as validateUUID } from "uuid";
 import { collaborators, files, folders, users, workspaces } from "../../../migrations/schema";
 import db from "./db";
@@ -355,6 +355,21 @@ export const getCollaborators = async (workspaceId: string) => {
     return { data: resolvedUsers.filter(Boolean) as UserI[], error: null };
   } catch (error: any) {
     console.log("getCollaborators Error:", error.message);
+    return { data: null, error: error.message };
+  }
+};
+
+export const getUser = async (userId: string) => {
+  try {
+    const user = await db.query.users.findFirst({
+      where: (dbUser, { eq }) => eq(dbUser.id, userId),
+    });
+
+    if (!user) return { data: null, error: "User not found!" };
+
+    return { data: user as UserI, error: null };
+  } catch (error: any) {
+    console.log("getUser Error:", error.message);
     return { data: null, error: error.message };
   }
 };
