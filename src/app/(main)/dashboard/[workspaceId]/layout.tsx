@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components";
+import { MobileSidebar, Sidebar } from "@/components";
 import React from "react";
 
 export default async function WorkspaceLayout({ children, params }: { children: React.ReactNode; params: any }) {
@@ -11,6 +11,10 @@ export default async function WorkspaceLayout({ children, params }: { children: 
         w-screen"
     >
       <Sidebar params={params} />
+
+      <MobileSidebar>
+        <Sidebar className="w-screen inline-block sm:hidden" params={params} />
+      </MobileSidebar>
 
       <div
         className="
