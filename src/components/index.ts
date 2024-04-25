@@ -21,6 +21,7 @@ export { default as PlanUsage } from "./sidebar/plan-usage";
 export { default as NativeNavigation } from "./sidebar/native-navigation";
 export { default as FoldersDropdownList } from "./sidebar/folders-dropdown-list";
 export { default as UserCard } from "./sidebar/user-card";
+export { default as MobileSidebar } from "./sidebar/mobile-sidebar";
 
 // settings
 export { default as Settings } from "./settings/settings";
@@ -37,6 +38,7 @@ export { default as CustomTooltip } from "./global/custom-tooltip";
 export { default as Dropdown } from "./sidebar/dropdown";
 export { default as LogoutButton } from "./global/logout-button";
 export { default as ModeToggle } from "./global/mode-toggle";
+export { default as SubscriptionModal } from "./global/subscription-modal";
 
 // ui
 export { default as Button } from "./ui/button";
