@@ -10,11 +10,23 @@ import {
 } from "@/libs/supabase/queries";
 import { UserI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Briefcase, Lock, Plus, Share } from "lucide-react";
+import { Briefcase, CreditCard, Lock, LogOut, Plus, Share, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, AlertDialog, Avatar, Button, CollaboratorSearch, Input, Label, Scroll, Select, Separator } from "..";
+import {
+  Alert,
+  AlertDialog,
+  Avatar,
+  Button,
+  CollaboratorSearch,
+  Input,
+  Label,
+  LogoutButton,
+  Scroll,
+  Select,
+  Separator,
+} from "..";
 import { useToast } from "../ui/use-toast";
 
 interface Props {}
@@ -163,6 +175,8 @@ const SettingsForm: React.FC<Props> = ({}) => {
     }
     setPermissions(value);
   };
+
+  const handleProfilePictureChange = (event: React.ChangeEvent<HTMLInputElement>) => {};
 
   // onclicks
   const handleDeleteWorkspace = async () => {
@@ -363,6 +377,52 @@ const SettingsForm: React.FC<Props> = ({}) => {
             Delete Workspace
           </Button>
         </Alert.Root>
+        <p className="flex items-center gap-2 mt-6">
+          <User size={20} />
+        </p>
+
+        <Separator />
+
+        <div className="flex items-center">
+          <Avatar.Root>
+            <Avatar.Image src="" alt="avatar-image" />
+            <Avatar.Fallback>
+              <Image src="/placeholder.jpg" fill alt="avatar" />
+            </Avatar.Fallback>
+          </Avatar.Root>
+
+          <div className="flex flex-col ml-6">
+            <small className="text-muted-foreground cursor-not-allowed">{user?.email}</small>
+
+            <Label htmlFor="profile-picture" className="text-sm text-muted-foreground">
+              Profile picture
+            </Label>
+
+            <Input
+              name="profile-picture"
+              type="file"
+              accept="image/*"
+              placeholder="Profile picture"
+              onChange={handleProfilePictureChange}
+            />
+          </div>
+        </div>
+
+        <LogoutButton>
+          <div className="flex items-center">
+            <LogOut />
+          </div>
+        </LogoutButton>
+
+        <p className="flex items-center gap-2 mt-6">
+          <CreditCard size={20} /> Billing & Plan
+        </p>
+
+        <Separator />
+
+        <p className="text-muted-foreground">
+          You are currently on a {subscription?.status === "active" ? "Pro" : "Free"} plan
+        </p>
       </>
 
       <AlertDialog.Root open={openAlertMessage}>
