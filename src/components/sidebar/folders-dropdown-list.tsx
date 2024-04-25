@@ -8,6 +8,7 @@ import { Accordian, CustomTooltip, Dropdown } from "..";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "../ui/use-toast";
 import { createFolder } from "@/libs/supabase/queries";
+import { useSupabaseRealtime } from "@/hooks";
 
 interface Props {
   workspaceFolders: FolderI[] | null;
@@ -16,8 +17,9 @@ interface Props {
 
 const FoldersDropdownList: React.FC<Props> = ({ workspaceFolders, workspaceId }) => {
   //WIP local state for folders
-  //WIP set real time updates
 
+  //WIP set real time updates
+  useSupabaseRealtime();
   const { state, dispatch, folderId } = useAppState();
   const { subscription } = useAuth();
   const { toast } = useToast();
