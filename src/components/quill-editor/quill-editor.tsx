@@ -8,12 +8,13 @@ import {
   deleteFolder,
   getFileDetails,
   getFolderDetails,
+  getUser,
   getWorkspaceDetails,
   updateFile,
   updateFolder,
   updateWorkspace,
 } from "@/libs/supabase/queries";
-import { FileI, FolderI, WorkspaceI } from "@/libs/supabase/supabase.types";
+import { CollaboratorI, FileI, FolderI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { EmojiClickData } from "emoji-picker-react";
 import { XCircleIcon } from "lucide-react";
@@ -41,13 +42,10 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
   const { socket, isConnected } = useSocket();
   const { state, dispatch, workspaceId, folderId } = useAppState();
   const [quill, setQuill] = useState<Quill | null>(null);
-  const [collaborators, setCollaborators] = useState<{ id: string; email: string; avatarUrl: string }[]>([
-    { avatarUrl: "/avatars/5.png", email: "lassan", id: "1" },
-    { avatarUrl: "/avatars/6.png", email: "lassan", id: "2" },
-    { avatarUrl: "/avatars/7.png", email: "lassan", id: "3" },
-  ]);
+  const [collaborators, setCollaborators] = useState<{ id: string; email: string; avatarUrl: string }[]>([]);
   const [saving, setSaving] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [localCursors, setLocalCursors] = useState<any[]>([]);
 
   const breadCrumbs = useMemo(() => {
     if (!pathName || !state.workspaces || !workspaceId) return;
@@ -167,7 +165,13 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
     if (quill === null || socket === null || !fileId || !user) return;
 
     // cursor updates
-    const selectionChangeHandler = () => {};
+    const selectionChangeHandler = (cursorId: string) => {
+      return (range: any, prevRange: any, source: any) => {
+        if (source === "user" && cursorId) {
+          socket.emit("send-cursor-move", range, fileId, cursorId);
+        }
+      };
+    };
 
     // quill change
     const quillChangeHandler = (delta: any, prevDelta: any, source: any) => {
@@ -216,9 +220,12 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
     };
 
     quill.on("text-change", quillChangeHandler);
+    quill.on("selection-change", selectionChangeHandler(user.id));
 
     return () => {
       quill.off("text-change", quillChangeHandler);
+      quill.off("selection-change", selectionChangeHandler(user.id));
+
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, [quill, socket, fileId, user, details, workspaceId, dispatch, folderId]);
@@ -227,9 +234,9 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
   useEffect(() => {
     if (quill === null || socket === null) return;
 
-    const socketHandler = (delta: any, id: string) => {
+    const socketHandler = (deltas: any, id: string) => {
       if (id === fileId) {
-        quill.updateContents(delta);
+        quill.updateContents(deltas);
       }
     };
 
@@ -240,6 +247,72 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
     };
   }, [quill, socket, fileId]);
 
+  useEffect(() => {
+    if (quill === null || socket === null || !fileId || !localCursors.length) return;
+
+    const socketHandler = (range: any, roomId: string, cursorId: string) => {
+      if (roomId === fileId) {
+        const cursorToMove = localCursors.find((c: any) => c.cursors()?.[0].id === cursorId);
+        if (cursorToMove) {
+          cursorToMove.moveCursor(cursorId, range);
+        }
+      }
+    };
+
+    socket.on("receive-cursor-move", socketHandler);
+
+    return () => {
+      socket.off("receive-cursor-move", socketHandler);
+    };
+  }, [quill, socket, fileId, localCursors]);
+
+  useEffect(() => {
+    if (!fileId || quill === null) return;
+
+    const room = supabase.channel(fileId);
+
+    const subscription = room
+      .on("presence", { event: "sync" }, () => {
+        const newState = room.presenceState();
+        const newCollaborators = Object.values(newState).flat() as any;
+        setCollaborators(newCollaborators);
+
+        if (user) {
+          const allCursors: any = [];
+          newCollaborators.forEach((collaborator: { id: string; email: string; avatar: string }) => {
+            if (collaborator.id !== user.id) {
+              const userCursor = quill.getModule("cursors");
+              userCursor.createCursor(
+                collaborator.id,
+                collaborator.email.split("@")[0].slice(0, 2).toUpperCase(),
+                `#${Math.random().toString().slice(2, 8)}`
+              );
+              allCursors.push(userCursor);
+            }
+          });
+
+          setLocalCursors(allCursors);
+        }
+      })
+      .subscribe(async (status) => {
+        if (status !== "SUBSCRIBED" || !user) return;
+        const { data, error } = await getUser(user.id);
+        if (error) return;
+
+        room.track({
+          id: user.id,
+          email: user.email?.split("@")[0].slice(0, 2).toUpperCase(),
+          avatarUrl: data?.avatarUrl
+            ? supabase.storage.from("avatars").getPublicUrl(data.avatarUrl).data.publicUrl
+            : "",
+        });
+      });
+
+    return () => {
+      supabase.removeChannel(room);
+    };
+  }, [quill, fileId, supabase, user]);
+
   const wrapperRef = useCallback(async (wrapper: HTMLDivElement) => {
     if (typeof window !== "undefined") {
       if (wrapper === null) return;
@@ -249,11 +322,17 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
       wrapper.append(editor);
 
       const Quill = (await import("quill")).default;
+      const QuillCursors = (await import("quill-cursors")).default;
+
+      Quill.register("modules/cursors", QuillCursors);
 
       const q = new Quill(editor, {
         theme: "snow",
         modules: {
           toolbar: TOOLBAR_OPTIONS,
+          cursors: {
+            transformOnTextChange: true,
+          },
         },
       });
 
@@ -335,6 +414,8 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
         title: "File deleted!",
         description: "File deleted successfully!",
       });
+
+      router.replace(`/dashboard/${workspaceId}`);
     }
 
     if (dirType === "folder") {
@@ -360,6 +441,8 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
         title: "Folder deleted",
         description: "Folder deleted successfully!",
       });
+
+      router.replace(`/dashboard/${workspaceId}`);
     }
   };
 
