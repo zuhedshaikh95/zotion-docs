@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useToast } from "../ui/use-toast";
 import { createFolder } from "@/libs/supabase/queries";
 import { useSupabaseRealtime } from "@/hooks";
+import { useSubscriptionModal } from "@/libs/providers/subscription-modal-provider";
 
 interface Props {
   workspaceFolders: FolderI[] | null;
@@ -22,6 +23,7 @@ const FoldersDropdownList: React.FC<Props> = ({ workspaceFolders, workspaceId })
   useSupabaseRealtime();
   const { state, dispatch, folderId } = useAppState();
   const { subscription } = useAuth();
+  const { open, setOpen } = useSubscriptionModal();
   const { toast } = useToast();
   const [folders, setFolders] = useState(workspaceFolders);
 
@@ -52,8 +54,10 @@ const FoldersDropdownList: React.FC<Props> = ({ workspaceFolders, workspaceId })
 
   // add folder
   const handleAddFolder = async () => {
-    // if (folders?.length! >= 3 && !subscription) {
-    // }
+    if (folders?.length! >= 3 && !subscription) {
+      setOpen(true);
+      return;
+    }
 
     const newFolder: FolderI = {
       bannerUrl: null,
