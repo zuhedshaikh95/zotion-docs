@@ -1,4 +1,5 @@
 "use client";
+import { useAppState } from "@/libs/providers/app-state-provider";
 import { createNewWorkspace } from "@/libs/supabase/queries";
 import { SubscriptionI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { CreateWorkspaceFormSchema } from "@/libs/validations/workspace";
@@ -11,7 +12,6 @@ import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
 import { Button, Card, EmojiPicker, Input, Label, Loader } from "..";
 import { useToast } from "../ui/use-toast";
-import { useAppState } from "@/libs/providers/app-state-provider";
 
 interface Props {
   user: AuthUser | null;
@@ -175,18 +175,13 @@ const DashboardSetup: React.FC<Props> = ({ subscription, user }) => {
                 type="file"
                 accept="image/*"
                 placeholder="Workspace Name"
-                // disabled={isLoading || subscription?.status !== "active"}
+                disabled={isLoading || subscription?.status !== "active"}
                 {...register("logo", { required: false })}
               />
               <small className="text-red-600">{errors?.logo?.message?.toString()}</small>
 
               {subscription?.status !== "active" && (
-                <small
-                  className="
-                  text-muted-foreground
-                  block
-              "
-                >
+                <small className="text-muted-foreground block">
                   To customize your workspace, you need to be on a Pro Plan
                 </small>
               )}
