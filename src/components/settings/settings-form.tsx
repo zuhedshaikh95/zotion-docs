@@ -1,6 +1,7 @@
 "use client";
 import { useAppState } from "@/libs/providers/app-state-provider";
 import { useAuth } from "@/libs/providers/auth-provider";
+import { useSubscriptionModal } from "@/libs/providers/subscription-modal-provider";
 import {
   addCollaborators,
   deleteWorkspace,
@@ -10,8 +11,9 @@ import {
 } from "@/libs/supabase/queries";
 import { UserI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Briefcase, CreditCard, Lock, LogOut, Plus, Share, User } from "lucide-react";
+import { Briefcase, CreditCard, ExternalLink, Lock, LogOut, Plus, Share, User } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -34,6 +36,7 @@ interface Props {}
 const SettingsForm: React.FC<Props> = ({}) => {
   const router = useRouter();
   const supabase = createClientComponentClient();
+  const { setOpen } = useSubscriptionModal();
   const { toast } = useToast();
   const { user, subscription } = useAuth();
   const titleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -216,6 +219,8 @@ const SettingsForm: React.FC<Props> = ({}) => {
     setOpenAlertMessage(false);
   };
 
+  const handleRedirectToCustomerPortal = () => {};
+
   // fetching avatar details
 
   // payment portal redirect
@@ -246,8 +251,11 @@ const SettingsForm: React.FC<Props> = ({}) => {
           placeholder="Workspace Logo"
           accept="image/*"
           onChange={handleWorkspaceLogoChange}
-          disabled={uploadingLogo}
+          disabled={uploadingLogo || subscription?.status !== "active"}
         />
+        {subscription?.status !== "active" && (
+          <small className="text-muted-foreground">To customize your workspace, you need to be on a Pro plan</small>
+        )}
       </div>
 
       <>
@@ -423,6 +431,39 @@ const SettingsForm: React.FC<Props> = ({}) => {
         <p className="text-muted-foreground">
           You are currently on a {subscription?.status === "active" ? "Pro" : "Free"} plan
         </p>
+
+        <Link
+          className="
+            text-muted-foreground
+            flex
+            flex-row
+            items-center
+            gap-2"
+          href="/#plans"
+          target="_blank"
+        >
+          View Plans <ExternalLink size={16} />
+        </Link>
+
+        {subscription?.status === "active" ? (
+          <div>
+            <Button
+              className="text-sm"
+              type="button"
+              size="sm"
+              variant="secondary"
+              // onClick={handleRedirectToCustomerPortal}
+            >
+              Manage subscription
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <Button className="text-sm" type="button" size="sm" variant="secondary" onClick={() => setOpen(true)}>
+              View plan
+            </Button>
+          </div>
+        )}
       </>
 
       <AlertDialog.Root open={openAlertMessage}>
