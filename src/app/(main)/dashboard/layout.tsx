@@ -1,3 +1,4 @@
+import { SubscriptionModalProvider } from "@/libs/providers/subscription-modal-provider";
 import React from "react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -8,7 +9,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         overflow-hidden
         h-screen"
     >
-      {children}
+      <SubscriptionModalProvider>{children}</SubscriptionModalProvider>
     </main>
   );
 }
