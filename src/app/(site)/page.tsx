@@ -257,6 +257,7 @@ export default async function Landing() {
             justify-center
             sm:items-stretch
             mt-10"
+          id="plans"
         >
           {PRICING_CARDS.map((pricing, index) => (
             <CustomCard
