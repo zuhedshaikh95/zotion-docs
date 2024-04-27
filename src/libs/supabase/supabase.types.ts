@@ -480,7 +480,7 @@ export type CustomerI = InferSelectModel<typeof customers>;
 
 export type ProductI = InferSelectModel<typeof products>;
 
-export type PriceI = InferSelectModel<typeof prices> & { products: ProductI };
+export type PriceI = InferSelectModel<typeof prices> & { products?: ProductI };
 
 export type SubscriptionI = InferSelectModel<typeof subscriptions> & {
   prices: PriceI;
