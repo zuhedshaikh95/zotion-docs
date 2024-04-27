@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 import { HomeIcon, SettingsIcon, TrashIcon } from "../icons";
-import { Settings } from "..";
+import { Settings, Trash } from "..";
 
 interface Props {
   workspaceId?: string;
@@ -43,20 +43,19 @@ const NativeNavigation: React.FC<Props> = ({ workspaceId, className }) => {
           </li>
         </Settings>
 
-        <li>
-          <Link
+        <Trash>
+          <li
             className="
               group/native
               flex
               text-Neutrals/neutrals-7
               transition-all
               gap-2"
-            href={`/dashboard/${workspaceId}`}
           >
             <TrashIcon />
             <span>Trash</span>
-          </Link>
-        </li>
+          </li>
+        </Trash>
       </ul>
     </div>
   );
