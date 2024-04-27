@@ -373,3 +373,22 @@ export const getUser = async (userId: string) => {
     return { data: null, error: error.message };
   }
 };
+
+export const getActiveProductsWithPrice = async () => {
+  try {
+    const products = await db.query.products.findMany({
+      where: (dbProduct, { eq }) => eq(dbProduct.active, true),
+
+      with: {
+        prices: {
+          where: (dbPrice, { eq }) => eq(dbPrice.active, true),
+        },
+      },
+    });
+
+    return { data: products, error: null };
+  } catch (error: any) {
+    console.log("getActiveProductsWithPrice Error:", error.message);
+    return { data: [], error: error.message };
+  }
+};
