@@ -40,6 +40,10 @@ export { default as LogoutButton } from "./global/logout-button";
 export { default as ModeToggle } from "./global/mode-toggle";
 export { default as SubscriptionModal } from "./global/subscription-modal";
 
+// trash
+export { default as TrashRestore } from "./trash/trash-restore";
+export { default as Trash } from "./trash/trash";
+
 // ui
 export { default as Button } from "./ui/button";
 export { default as Input } from "./ui/input";
