@@ -30,6 +30,7 @@ import {
   Separator,
 } from "..";
 import { useToast } from "../ui/use-toast";
+import { postData } from "@/libs/utils";
 
 interface Props {}
 
@@ -46,6 +47,7 @@ const SettingsForm: React.FC<Props> = ({}) => {
   const [openAlertMessage, setOpenAlertMessage] = useState<boolean>(false);
   const [workspaceDetails, setWorkspaceDetails] = useState<WorkspaceI | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [loadingPortal, setLoadingPortal] = useState<boolean>(false);
 
   // get workspace details
   useEffect(() => {
@@ -212,6 +214,11 @@ const SettingsForm: React.FC<Props> = ({}) => {
   const handleAlertDialogClick = async () => {
     if (!workspaceId) return;
 
+    if (subscription?.status !== "active" && collaborators.length >= 2) {
+      setOpen(true);
+      return;
+    }
+
     if (collaborators.length) {
       await removeCollaborators(collaborators, workspaceId);
     }
@@ -219,7 +226,19 @@ const SettingsForm: React.FC<Props> = ({}) => {
     setOpenAlertMessage(false);
   };
 
-  const handleRedirectToCustomerPortal = () => {};
+  const handleRedirectToCustomerPortal = async () => {
+    setLoadingPortal(true);
+
+    try {
+      const { url } = await postData({ url: "/api/create-portal-link", data: { origin: window.location.origin } });
+
+      window.location.assign(url);
+    } catch (error: any) {
+      console.log("Customer Portal Redrect Error:", error.message);
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
 
   // fetching avatar details
 
@@ -452,7 +471,8 @@ const SettingsForm: React.FC<Props> = ({}) => {
               type="button"
               size="sm"
               variant="secondary"
-              // onClick={handleRedirectToCustomerPortal}
+              disabled={loadingPortal}
+              onClick={handleRedirectToCustomerPortal}
             >
               Manage subscription
             </Button>
