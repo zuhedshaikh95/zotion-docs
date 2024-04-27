@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   bigint,
   boolean,
@@ -142,10 +143,13 @@ export const subscriptions = pgTable("subscriptions", {
   id: text("id").primaryKey().notNull(),
   userId: uuid("user_id")
     .notNull()
+    .references(() => users.id)
     .references(() => users.id),
   status: subscriptionStatus("status"),
   metadata: jsonb("metadata"),
-  priceId: text("price_id").references(() => prices.id),
+  priceId: text("price_id")
+    .references(() => prices.id)
+    .references(() => prices.id),
   quantity: integer("quantity"),
   cancelAtPeriodEnd: boolean("cancel_at_period_end"),
   created: timestamp("created", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
@@ -168,3 +172,14 @@ export const collaborators = pgTable("collaborators", {
     .references(() => users.id, { onDelete: "cascade" }),
   id: uuid("id").defaultRandom().primaryKey().notNull(),
 });
+
+export const productsRelations = relations(products, ({ many }) => ({
+  prices: many(prices),
+}));
+
+export const pricesRelations = relations(prices, ({ one }) => ({
+  product: one(products, {
+    fields: [prices.productId],
+    references: [products.id],
+  }),
+}));
