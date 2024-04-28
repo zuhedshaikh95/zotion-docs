@@ -14,13 +14,13 @@ import {
   updateFolder,
   updateWorkspace,
 } from "@/libs/supabase/queries";
-import { CollaboratorI, FileI, FolderI, WorkspaceI } from "@/libs/supabase/supabase.types";
+import { FileI, FolderI, WorkspaceI } from "@/libs/supabase/supabase.types";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { EmojiClickData } from "emoji-picker-react";
 import { XCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import type { Quill } from "quill";
+import type Quill from "quill";
 import "quill/dist/quill.snow.css";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Badge, BannerUpload, Button, EmojiPicker, Tooltip } from "../";
@@ -281,7 +281,7 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
           const allCursors: any = [];
           newCollaborators.forEach((collaborator: { id: string; email: string; avatar: string }) => {
             if (collaborator.id !== user.id) {
-              const userCursor = quill.getModule("cursors");
+              const userCursor = quill.getModule("cursors") as any;
               userCursor.createCursor(
                 collaborator.id,
                 collaborator.email.split("@")[0].slice(0, 2).toUpperCase(),
@@ -322,7 +322,7 @@ const QuillEditor: React.FC<Props> = ({ dirDetails, dirType, fileId }) => {
       wrapper.append(editor);
 
       const Quill = (await import("quill")).default;
-      const QuillCursors = (await import("quill-cursors")).default;
+      const QuillCursors = (await import("quill-cursors")).default as any;
 
       Quill.register("modules/cursors", QuillCursors);
 
