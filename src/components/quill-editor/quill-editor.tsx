@@ -1,4 +1,5 @@
 "use client";
+import "quill/dist/quill.snow.css";
 import { TOOLBAR_OPTIONS } from "@/configs/quill-editor.config";
 import { useAppState } from "@/libs/providers/app-state-provider";
 import { useAuth } from "@/libs/providers/auth-provider";
@@ -21,7 +22,6 @@ import { XCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type Quill from "quill";
-import "quill/dist/quill.snow.css";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Avatar, Badge, BannerUpload, Button, EmojiPicker, Tooltip } from "../";
 import { useToast } from "../ui/use-toast";
