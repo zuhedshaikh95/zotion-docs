@@ -5,5 +5,3 @@ A setout to clone the favorite tool of folks at corporate to take notes, file do
 <br />
 
 <img width="100%" src="https://i.ibb.co/xDMj0Fb/zotion-docs-glimpses.gif" alt="zotion-docs-glimpses" />
-
-<br />
