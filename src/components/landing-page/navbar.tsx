@@ -24,14 +24,18 @@ const Navbar: React.FC<Props> = ({}) => {
   return (
     <header
       className="
-        mx-auto
+        w-full
+        fixed
+        top-0
         md:px-10
         md:py-3
         sm:p-2
         p-4
         flex
         justify-center
-        items-center"
+        items-center
+        bg-background
+        z-50"
     >
       <Link
         href="/"
