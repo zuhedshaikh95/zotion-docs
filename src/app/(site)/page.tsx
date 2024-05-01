@@ -10,7 +10,7 @@ export default async function Landing() {
       <Container>
         <div
           className="
-            mt-10
+            mt-20
             sm:flex
             sm:flex-col
             gap-4
